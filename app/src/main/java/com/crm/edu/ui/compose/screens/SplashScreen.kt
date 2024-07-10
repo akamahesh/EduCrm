@@ -1,4 +1,4 @@
-package com.crm.edu.compose.screens
+package com.crm.edu.ui.compose.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,7 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.crm.edu.compose.Screen
+import com.crm.edu.ui.compose.Screen
 import kotlinx.coroutines.delay
 
 @Composable

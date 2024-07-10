@@ -1,13 +1,13 @@
-package com.crm.edu.compose
+package com.crm.edu.ui.compose
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.crm.edu.compose.screens.HomeScreen
-import com.crm.edu.compose.screens.LoginScreen
-import com.crm.edu.compose.screens.SplashScreen
+import com.crm.edu.ui.compose.screens.HomeScreen
+import com.crm.edu.ui.compose.screens.LoginScreen
+import com.crm.edu.ui.compose.screens.SplashScreen
 
 @Composable
 fun EduApp() {

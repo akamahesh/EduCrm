@@ -1,20 +1,31 @@
-package com.crm.edu.compose.screens
+package com.crm.edu.ui.compose.screens
+
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.crm.edu.ui.compose.Screen
 
 @Composable
-fun DashboardScreen(navController: NavHostController) {
+fun LoginScreen(navController: NavHostController) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Dashboard Screen", style = MaterialTheme.typography.headlineLarge)
+        Button(onClick = {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Login.route) {
+                    inclusive = true
+                }
+            }
+        }) {
+            Text(text = "Login", style = MaterialTheme.typography.headlineLarge)
+        }
     }
 }

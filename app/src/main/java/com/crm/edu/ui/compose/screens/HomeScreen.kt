@@ -1,4 +1,4 @@
-package com.crm.edu.compose.screens
+package com.crm.edu.ui.compose.screens
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.crm.edu.compose.Screen
+import com.crm.edu.ui.compose.Screen
 
 @Composable
 fun HomeScreen(navController: NavHostController) {

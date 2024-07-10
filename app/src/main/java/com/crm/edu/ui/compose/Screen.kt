@@ -1,4 +1,4 @@
-package com.crm.edu.compose
+package com.crm.edu.ui.compose
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash_screen")

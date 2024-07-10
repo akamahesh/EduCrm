@@ -1,4 +1,4 @@
-package com.crm.edu
+package com.crm.edu.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,7 +9,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.crm.edu.compose.EduApp
+import com.crm.edu.ui.compose.EduApp
 import com.crm.edu.ui.theme.EduCrmTheme
 import dagger.hilt.android.AndroidEntryPoint
 
