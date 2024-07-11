@@ -20,6 +20,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.crm.edu.ui.compose.Screen
+import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
+import com.crm.edu.ui.compose.screens.dashboard.DashboardScreen
+import com.crm.edu.ui.compose.screens.holidayLeaves.HolidayLeaveScreen
+import com.crm.edu.ui.compose.screens.leave.LeaveScreen
+import com.crm.edu.ui.compose.screens.leaveRequest.LeaveRequestScreen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +81,24 @@ fun BottomNavigationBar(navController: NavHostController) {
                 CallManagerScreen(navController)
             }
             composable(route = Screen.Dashboard.route) {
-                DashboardScreen(navController)
+                DashboardScreen(navController, onOptionClick = { route ->
+                    navController.navigate(route = route)
+                }, onUpClick = {
+                    navController.navigateUp()
+                })
+            }
+
+            composable(route = Screen.Attendance.route) {
+                AttendanceScreen(navController)
+            }
+            composable(route = Screen.LeaveRequest.route) {
+                LeaveRequestScreen(navController)
+            }
+            composable(route = Screen.HolidayCalendar.route) {
+                HolidayLeaveScreen(navController)
+            }
+            composable(route = Screen.Leaves.route) {
+                LeaveScreen(navController)
             }
 
         }

@@ -29,5 +29,6 @@ fun EduAppNavHost(navController: NavHostController) {
         composable(route = Screen.Home.route) {
             HomeScreen(navController)
         }
+
     }
 }
