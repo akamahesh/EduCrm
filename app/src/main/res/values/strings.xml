@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">EduCrm</string>
     <string name="dashboard_title">DashBoard</string>
+    <string name="attendance_title">Attendance</string>
 </resources>

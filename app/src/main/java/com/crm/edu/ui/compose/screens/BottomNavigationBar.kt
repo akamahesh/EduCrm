@@ -89,8 +89,13 @@ fun BottomNavigationBar(navController: NavHostController) {
             }
 
             composable(route = Screen.Attendance.route) {
-                AttendanceScreen(navController)
+                AttendanceScreen(navController, onOptionClick = { route ->
+                    navController.navigate(route = route)
+                }, onUpClick = {
+                    navController.navigateUp()
+                })
             }
+
             composable(route = Screen.LeaveRequest.route) {
                 LeaveRequestScreen(navController)
             }
