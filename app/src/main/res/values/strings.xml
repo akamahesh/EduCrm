@@ -3,4 +3,5 @@
     <string name="dashboard_title">DashBoard</string>
     <string name="attendance_title">Attendance</string>
     <string name="holiday_title">Holiday</string>
+    <string name="my_attendance_title">My Attendance</string>
 </resources>

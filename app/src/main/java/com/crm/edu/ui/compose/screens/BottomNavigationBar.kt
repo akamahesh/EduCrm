@@ -21,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.crm.edu.ui.compose.Screen
 import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
+import com.crm.edu.ui.compose.screens.calendar.CalendarScreen
 import com.crm.edu.ui.compose.screens.dashboard.DashboardScreen
 import com.crm.edu.ui.compose.screens.holidayLeaves.HolidayCalendarScreen
 import com.crm.edu.ui.compose.screens.leave.LeaveScreen
@@ -106,6 +107,12 @@ fun BottomNavigationBar(navController: NavHostController) {
             }
             composable(route = Screen.Leaves.route) {
                 LeaveScreen(navController)
+            }
+
+            composable(route = Screen.Calendar.route) {
+                CalendarScreen(navController) {
+                    navController.navigateUp()
+                }
             }
 
         }

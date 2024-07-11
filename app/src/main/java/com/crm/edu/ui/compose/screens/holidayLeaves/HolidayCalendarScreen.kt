@@ -87,7 +87,7 @@ private fun HolidayCalendarScreenInternal(
 }
 
 @Composable
-fun Legend() {
+private fun Legend() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,7 +99,7 @@ fun Legend() {
 }
 
 @Composable
-fun HolidayRow(holiday: Holiday) {
+private fun HolidayRow(holiday: Holiday) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -131,7 +131,7 @@ fun HolidayRow(holiday: Holiday) {
 }
 
 @Composable
-fun HeaderRow() {
+private fun HeaderRow() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -228,12 +228,12 @@ private fun HolidayTopBar(
 }
 
 
-data class Holiday(
+private data class Holiday(
     val day: String,
     val occasion: String,
     val leaveType: LeaveType
 )
 
-enum class LeaveType {
+private enum class LeaveType {
     COMPANY_HOLIDAY, FLOATING_HOLIDAY
 }

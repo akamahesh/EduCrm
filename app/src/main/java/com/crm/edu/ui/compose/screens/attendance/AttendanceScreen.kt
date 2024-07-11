@@ -94,6 +94,7 @@ private fun AttendanceScreenInternal(
                                 "${item.name} clicked ",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            onOptionClick.invoke(Screen.Calendar.route)
                         })
                 }
             }
@@ -207,3 +208,7 @@ private data class AttendanceOptionItem(
     val drawableRes: Int,
     val color: Color = Color.Black
 )
+
+enum class AttendanceStatus {
+    PRESENT, LEAVE, ABSENT, HOLIDAY, HALF_DAY, COMPULSORY_OFF, OUTDOOR_DUTY, CHECK_IN
+}
