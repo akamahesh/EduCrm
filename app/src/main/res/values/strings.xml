@@ -2,6 +2,7 @@
     <string name="app_name">EduCrm</string>
     <string name="dashboard_title">DashBoard</string>
     <string name="attendance_title">Attendance</string>
+    <string name="mark_attendance_title">Mark Attendance</string>
     <string name="holiday_title">Holiday</string>
     <string name="my_attendance_title">My Attendance</string>
 </resources>

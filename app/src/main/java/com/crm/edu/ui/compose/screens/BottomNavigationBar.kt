@@ -26,6 +26,7 @@ import com.crm.edu.ui.compose.screens.dashboard.DashboardScreen
 import com.crm.edu.ui.compose.screens.holidayLeaves.HolidayCalendarScreen
 import com.crm.edu.ui.compose.screens.leave.LeaveScreen
 import com.crm.edu.ui.compose.screens.leaveRequest.LeaveRequestScreen
+import com.crm.edu.ui.compose.screens.markAttendance.MarkAttendanceScreen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,6 +112,11 @@ fun BottomNavigationBar(navController: NavHostController) {
 
             composable(route = Screen.Calendar.route) {
                 CalendarScreen(navController) {
+                    navController.navigateUp()
+                }
+            }
+            composable(route = Screen.MarkAttendance.route) {
+                MarkAttendanceScreen(navController) {
                     navController.navigateUp()
                 }
             }

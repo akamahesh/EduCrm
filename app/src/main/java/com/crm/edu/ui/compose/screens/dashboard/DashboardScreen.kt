@@ -1,6 +1,7 @@
 package com.crm.edu.ui.compose.screens.dashboard
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,7 +29,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -80,6 +86,7 @@ private fun DashboardScreenInternal(
                     MainItem(
                         text = item.name,
                         drawableRes = item.drawableRes,
+                        color = item.color,
                         onClick = { onOptionClick.invoke(item.route) })
                 }
             }
@@ -106,22 +113,26 @@ private fun getAllDashboardOptions(): List<DashboardItem> {
         DashboardItem(
             name = "Attendance",
             route = Screen.Attendance.route,
-            drawableRes = R.drawable.ic_time
+            drawableRes = R.drawable.ic_attendance_green_mutlicolor,
+            color = Color.Green
         ),
         DashboardItem(
             name = "Leave Request",
             route = Screen.LeaveRequest.route,
-            drawableRes = R.drawable.ic_time
+            drawableRes = R.drawable.ic_attendance_multi_color,
+            color = Color.Blue
         ),
         DashboardItem(
             name = "Holidays Calendar",
             route = Screen.HolidayCalendar.route,
-            drawableRes = R.drawable.ic_time
+            drawableRes = R.drawable.ic_holiday_leave,
+            color = Color.Cyan
         ),
         DashboardItem(
             name = "Leaves",
             route = Screen.Leaves.route,
-            drawableRes = R.drawable.ic_time
+            drawableRes = R.drawable.ic_leave_request,
+            color = Color.DarkGray
         ),
     )
     return dashboardItems
@@ -130,7 +141,8 @@ private fun getAllDashboardOptions(): List<DashboardItem> {
 private data class DashboardItem(
     val name: String,
     val route: String,
-    val drawableRes: Int
+    val drawableRes: Int,
+    val color: Color
 )
 
 @Preview
@@ -151,21 +163,21 @@ private class DashboardScreenPreviewParamProvider :
 }
 
 @Composable
-private fun MainItem(text: String, drawableRes: Int, onClick: () -> Unit) {
+private fun MainItem(text: String, drawableRes: Int, color: Color, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .padding(16.dp)
             .fillMaxSize()
             .clickable { onClick() },
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        shape = RoundedCornerShape(corner = CornerSize(16.dp)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(8.dp)
                 .fillMaxSize()
-                .size(100.dp),
+                .size(120.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -173,14 +185,18 @@ private fun MainItem(text: String, drawableRes: Int, onClick: () -> Unit) {
             Image(
                 painter = painter,
                 contentDescription = null,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, color, CircleShape)
+                    .padding(8.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = text,
-                color = Color.White,
+                color = Color.Black,
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleSmall
             )
         }
     }

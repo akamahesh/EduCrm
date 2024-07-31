@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.crm.edu.compose.screens.LoginScreen
 import com.crm.edu.ui.compose.screens.HomeScreen
-import com.crm.edu.ui.compose.screens.SplashScreen
+import com.crm.edu.ui.compose.screens.splash.SplashScreen
 
 @Composable
 fun EduApp() {

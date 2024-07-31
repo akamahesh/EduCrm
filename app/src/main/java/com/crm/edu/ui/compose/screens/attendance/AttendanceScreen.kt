@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
@@ -89,12 +91,7 @@ private fun AttendanceScreenInternal(
                         drawableRes = item.drawableRes,
                         textColor = item.color,
                         onClick = {
-                            Toast.makeText(
-                                context,
-                                "${item.name} clicked ",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            onOptionClick.invoke(Screen.Calendar.route)
+                            onOptionClick.invoke(item.route)
                         })
                 }
             }
@@ -130,20 +127,20 @@ private fun getAttendanceOptionItems(): List<AttendanceOptionItem> {
         AttendanceOptionItem(
             name = "My Team",
             route = Screen.LeaveRequest.route,
-            drawableRes = R.drawable.ic_time,
+            drawableRes = R.drawable.ic_my_team_color,
             color = Color.Magenta
         ),
         AttendanceOptionItem(
             name = "My Attendance",
             route = Screen.HolidayCalendar.route,
-            drawableRes = R.drawable.ic_time,
+            drawableRes = R.drawable.ic_attendance_multi_color,
             color = Color.Blue
         ),
         AttendanceOptionItem(
             name = "Mark Attendance",
-            route = Screen.Leaves.route,
-            drawableRes = R.drawable.ic_time,
-            color = Color.Blue
+            route = Screen.MarkAttendance.route,
+            drawableRes = R.drawable.ic_mark_attendance,
+            color = Color.DarkGray
         ),
     )
     return optionItems
@@ -156,9 +153,9 @@ private fun MainItem(text: String, drawableRes: Int, textColor: Color, onClick: 
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth()
-            .border(1.dp, Color.Gray, shape = MaterialTheme.shapes.medium)
             .clickable { onClick() },
-        shape = MaterialTheme.shapes.medium,
+        shape = RoundedCornerShape(corner = CornerSize(16.dp)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
