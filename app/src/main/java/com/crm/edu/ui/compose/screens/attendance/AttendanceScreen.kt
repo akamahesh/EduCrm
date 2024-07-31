@@ -126,13 +126,13 @@ private fun getAttendanceOptionItems(): List<AttendanceOptionItem> {
     val optionItems = mutableListOf(
         AttendanceOptionItem(
             name = "My Team",
-            route = Screen.LeaveRequest.route,
+            route = Screen.MyTeam.route,
             drawableRes = R.drawable.ic_my_team_color,
             color = Color.Magenta
         ),
         AttendanceOptionItem(
             name = "My Attendance",
-            route = Screen.HolidayCalendar.route,
+            route = Screen.Calendar.route,
             drawableRes = R.drawable.ic_attendance_multi_color,
             color = Color.Blue
         ),

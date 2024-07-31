@@ -50,6 +50,14 @@ class UserPreferences(context: Context) {
             }
             .first()
     }
+    // Suspend function to get the reporting ID directly
+    suspend fun getReportingId(): String? {
+        return dataStore.data
+            .map { preferences ->
+                preferences[UserPreferencesKeys.REPORTING_PERSON]
+            }
+            .first()
+    }
 
     // Save User Data
     suspend fun saveUserData(userData: Map<String, String>) {

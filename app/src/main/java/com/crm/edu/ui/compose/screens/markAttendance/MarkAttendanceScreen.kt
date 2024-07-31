@@ -70,6 +70,8 @@ fun MarkAttendanceScreen(
 
     val checkAttendanceState by viewModel.state.collectAsState()
     val markAttendanceState by viewModel.markAttendanceState.collectAsState()
+    val location by viewModel.locationData.collectAsState()
+
 
     when (markAttendanceState) {
         is EResult.Success -> {
@@ -99,7 +101,7 @@ fun MarkAttendanceScreen(
         checkAttendanceState,
         onOptionClick = {
             Log.d("EduLogs", "Edu Logs $it")
-            viewModel.checkInOut(it)
+            viewModel.checkInOut(it, location?.latitude.toString(), location?.longitude.toString())
         },
         onUpClick = onUpClick
     ) {

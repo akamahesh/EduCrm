@@ -24,6 +24,7 @@ room = "2.6.1"
 timber = "5.0.1"
 datastore = "1.0.0"
 kotlinxSerializationJson = "1.6.3"
+playService = "21.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -71,7 +72,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber"}
 androidx-datastore-preference = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore"}
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastore"}
-
+play-service-location = {group="com.google.android.gms", name= "play-services-location", version.ref = "playService"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

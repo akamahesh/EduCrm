@@ -6,6 +6,7 @@ import com.crm.edu.core.network.AuthInterceptor
 import com.crm.edu.data.AppDatabase
 import com.crm.edu.data.holiday.HolidayApi
 import com.crm.edu.data.holiday.local.HolidayDao
+import com.crm.edu.data.leaverequest.remote.LeaveRequestApi
 import com.crm.edu.data.login.local.pref.UserPreferences
 import com.crm.edu.data.login.remote.api.LoginApi
 import com.crm.edu.data.markAttendance.remote.MarkAttendanceApi
@@ -69,6 +70,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideHolidayApi(retrofit: Retrofit): HolidayApi = retrofit.create(HolidayApi::class.java)
+
+
+    @Provides
+    @Singleton
+    fun provideLeaveRequestApi(retrofit: Retrofit): LeaveRequestApi =
+        retrofit.create(LeaveRequestApi::class.java)
 
 
     @Provides
