@@ -9,13 +9,20 @@ class RemoteDataSource @Inject constructor(
 
     suspend fun getCheckAttendanceData() = markAttendanceApi.fetchAttendanceDetail()
 
-    suspend fun markCheckInOut(attendanceTypeId: String): MarkAttendanceResponseDTO {
+    suspend fun markCheckInOut(
+        attendanceTypeId: String,
+        departmentId: String?,
+        reportingId: String?,
+        lat: String,
+        long: String
+    ): MarkAttendanceResponseDTO {
         val requestBody = mapOf(
-            "latitude" to "23.56765432",
-            "longitude" to "24.234564433",
+            "latitude" to lat,
+            "longitude" to long,
             "attendance_type" to attendanceTypeId,
-            "department_id" to "1",
-            "reporting_id" to "79"
+            "department_id" to departmentId,
+            "reporting_id" to reportingId,
+            "image" to "NA"
         )
         Log.e("EduLog", "request body : $requestBody")
         return markAttendanceApi.markCheckInOut(requestBody)

@@ -1,6 +1,7 @@
 package com.crm.edu.data.markAttendance
 
 import com.crm.edu.core.EResult
+import com.crm.edu.data.markAttendance.local.LocalDataSource
 import com.crm.edu.data.markAttendance.remote.MarkAttendanceData
 import com.crm.edu.data.markAttendance.remote.RemoteDataSource
 import com.crm.edu.data.markAttendance.remote.asData
@@ -11,7 +12,8 @@ import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 class MarkAttendanceRepository @Inject constructor(
-    private val remoteDataSource: RemoteDataSource
+    private val remoteDataSource: RemoteDataSource,
+    private val localDataSource: LocalDataSource
 ) {
 
     fun getCheckAttendanceData(): Flow<EResult<CheckAttendanceData>> = flow {
@@ -29,10 +31,18 @@ class MarkAttendanceRepository @Inject constructor(
         emit(EResult.Error(e))
     }
 
-    fun markCheckInOut(attendanceId: String): Flow<EResult<MarkAttendanceData>> = flow {
+    fun markCheckInOut(
+        attendanceId: String,
+        lat: String,
+        long: String
+    ): Flow<EResult<MarkAttendanceData>> = flow {
         emit(EResult.Loading)
         try {
-            val remoteData = remoteDataSource.markCheckInOut(attendanceId)
+            val departmentId = localDataSource.getDepartmentId()
+            val reportingId = localDataSource.getReportingId()
+
+            val remoteData =
+                remoteDataSource.markCheckInOut(attendanceId, departmentId, reportingId, lat, long)
             val attendanceData = remoteData.asData()
             emit(EResult.Success(attendanceData))
         } catch (ex: Exception) {

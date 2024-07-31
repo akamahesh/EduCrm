@@ -1,6 +1,5 @@
 package com.crm.edu.data.markAttendance.remote
 
-import retrofit2.http.Body
 import retrofit2.http.FieldMap
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -13,5 +12,5 @@ interface MarkAttendanceApi {
 
     @FormUrlEncoded
     @POST("attendance")
-    suspend fun markCheckInOut(@FieldMap(encoded = false) data: Map<String, String>): MarkAttendanceResponseDTO
+    suspend fun markCheckInOut(@FieldMap(encoded = false) data: Map<String, String?>): MarkAttendanceResponseDTO
 }

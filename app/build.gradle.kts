@@ -78,6 +78,7 @@ dependencies {
 
     implementation(libs.androidx.datastore.preference)
     implementation(libs.androidx.datastore.core)
+    implementation(libs.play.service.location)
 
     implementation(libs.hilt.android)
     implementation(libs.retrofit)
