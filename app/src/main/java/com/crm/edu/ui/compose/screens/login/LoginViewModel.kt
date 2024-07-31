@@ -1,8 +1,10 @@
 package com.crm.edu.ui.compose.screens.login
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.crm.edu.core.EResult
 import com.crm.edu.domain.login.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,10 +25,25 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _loginState.value = LoginUiState.Loading
             val result = loginUseCase.execute(username, password)
-            _loginState.value = result.fold(
-                onSuccess = { LoginUiState.Success(it.message) },
-                onFailure = { LoginUiState.Error(it.message ?: "Unknown error") }
-            )
+            result.collect {
+                Log.d("EduLogs", " Login result : $it")
+                when (it) {
+                    is EResult.Loading -> {
+                        _loginState.value = LoginUiState.Loading
+                    }
+
+                    is EResult.Success -> {
+                        _loginState.value = LoginUiState.Success(it.data.message)
+                    }
+
+                    is EResult.Error -> {
+                        _loginState.value =
+                            LoginUiState.Error(it.exception.message ?: "Unknown error")
+                    }
+
+                    else -> {}
+                }
+            }
         }
     }
 }

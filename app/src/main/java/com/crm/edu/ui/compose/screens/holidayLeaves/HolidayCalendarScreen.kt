@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,19 +28,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.crm.edu.R
+import com.crm.edu.core.EResult
+import com.crm.edu.data.holiday.HolidayData
 
 @Composable
 fun HolidayCalendarScreen(
@@ -45,14 +49,17 @@ fun HolidayCalendarScreen(
     viewModel: HolidayCalendarViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
 ) {
-    val optionItems = getHolidayItems()
-    HolidayCalendarScreenInternal(optionItems, onUpClick)
+    val holidays by viewModel.state.collectAsState()
+    HolidayCalendarScreenInternal(holidays, onUpClick) {
+        viewModel.retry()
+    }
 }
 
 @Composable
 private fun HolidayCalendarScreenInternal(
-    optionItems: List<Holiday>,
+    state: EResult<List<HolidayData>>,
     onUpClick: () -> Unit = {},
+    onRetry: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -60,29 +67,44 @@ private fun HolidayCalendarScreenInternal(
         },
     ) { padding ->
 
-        Box(
-            modifier = Modifier
-                .padding(padding)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                HeaderRow()
-                Spacer(modifier = Modifier.height(8.dp))
-                LazyColumn {
-                    items(optionItems) { holiday ->
-                        HolidayRow(holiday)
-                        Divider()
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Legend()
+        when (state) {
+            is EResult.Loading -> {
+                CircularProgressIndicator()
+            }
+
+            is EResult.SuccessAndLoading -> {
+                val holidays = state.data
+                SuccessHolidayLayout(padding, holidays)
+            }
+
+            is EResult.Success -> {
+                val holidays = state.data
+                SuccessHolidayLayout(padding, holidays)
+            }
+
+            is EResult.Error -> {
+                val exception = state.exception
+                ErrorScreen(exception.message ?: "An error occurred", onRetry = { onRetry() })
+
             }
         }
 
+    }
+}
 
+
+@Composable
+private fun ErrorScreen(message: String, onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = message)
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onRetry) {
+            Text(text = "Retry")
+        }
     }
 }
 
@@ -99,7 +121,7 @@ private fun Legend() {
 }
 
 @Composable
-private fun HolidayRow(holiday: Holiday) {
+private fun HolidayRow(holiday: HolidayData) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -108,21 +130,23 @@ private fun HolidayRow(holiday: Holiday) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = holiday.day,
+            text = holiday.weekDay,
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = holiday.occasion,
+            text = holiday.holidayName,
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = when (holiday.leaveType) {
-                LeaveType.COMPANY_HOLIDAY -> "CH"
-                LeaveType.FLOATING_HOLIDAY -> "FH"
+            text = when (holiday.holidayType) {
+                LeaveType.COMPANY_HOLIDAY.name -> "CH"
+                LeaveType.FLOATING_HOLIDAY.name -> "FH"
+                else -> "NA"
             },
-            color = when (holiday.leaveType) {
-                LeaveType.COMPANY_HOLIDAY -> Color.Blue
-                LeaveType.FLOATING_HOLIDAY -> Color.Red
+            color = when (holiday.holidayType) {
+                LeaveType.COMPANY_HOLIDAY.name -> Color.Blue
+                LeaveType.FLOATING_HOLIDAY.name -> Color.Red
+                else -> Color.Black
             },
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(0.5f)
@@ -161,49 +185,49 @@ private fun HeaderRow() {
     }
 }
 
-@Preview
+@Composable
+private fun SuccessHolidayLayout(padding: PaddingValues, holidays: List<HolidayData>) {
+    Box(
+        modifier = Modifier
+            .padding(padding)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            HeaderRow()
+            Spacer(modifier = Modifier.height(8.dp))
+            LazyColumn {
+                items(holidays) { holiday ->
+                    HolidayRow(holiday)
+                    Divider()
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Legend()
+        }
+    }
+}
+
+/*@Preview
 @Composable
 private fun HolidayCalendarScreenPreview(
-    @PreviewParameter(HolidayCalendarScreenPreviewParamProvider::class) optionItems: List<Holiday>
+    @PreviewParameter(HolidayCalendarScreenPreviewParamProvider::class) optionItems: List<HolidayData>
 ) {
-    HolidayCalendarScreenInternal(optionItems = optionItems)
+    HolidayCalendarScreenInternal(HolidayData = optionItems)
 }
 
 private class HolidayCalendarScreenPreviewParamProvider :
-    PreviewParameterProvider<List<Holiday>> {
+    PreviewParameterProvider<List<HolidayData>> {
 
     override val values: Sequence<List<Holiday>> =
         sequenceOf(
             getHolidayItems()
         )
-}
+}*/
 
 
-private fun getHolidayItems(): List<Holiday> {
-    val optionItems = mutableListOf(
-        Holiday(
-            day = "Thursday, 11 July 2024",
-            occasion = "New Year",
-            leaveType = LeaveType.COMPANY_HOLIDAY,
-        ),
-        Holiday(
-            day = "Thursday, 11 July 2024",
-            occasion = "Diwali",
-            leaveType = LeaveType.COMPANY_HOLIDAY,
-        ),
-        Holiday(
-            day = "Thursday, 11 July 2024",
-            occasion = "Holi",
-            leaveType = LeaveType.FLOATING_HOLIDAY,
-        ),
-        Holiday(
-            day = "Thursday, 11 July 2024",
-            occasion = "Navrata",
-            leaveType = LeaveType.COMPANY_HOLIDAY,
-        ),
-    )
-    return optionItems
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -228,12 +252,6 @@ private fun HolidayTopBar(
 }
 
 
-private data class Holiday(
-    val day: String,
-    val occasion: String,
-    val leaveType: LeaveType
-)
-
-private enum class LeaveType {
-    COMPANY_HOLIDAY, FLOATING_HOLIDAY
+private enum class LeaveType(value: String) {
+    COMPANY_HOLIDAY("as"), FLOATING_HOLIDAY("asdf")
 }
