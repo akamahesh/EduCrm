@@ -13,6 +13,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,10 +28,7 @@ class LeaveRequestViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
     val uiState: StateFlow<UIState> get() = _uiState
 
-    var leaveCount = 0
     var isSelectingFromDate = true
-    var applyDate = ""
-
 
     init {
         getLeaveDetails()
@@ -45,8 +44,15 @@ class LeaveRequestViewModel @Inject constructor(
                     }
 
                     is EResult.Success -> {
+                        val leaveTypes = result.data.leaveType
+                        val selectedLeaveType = leaveTypes.first()
                         _uiState.value =
-                            UIState.Success(LeaveRequestState().copy(leaveTypes = result.data.leaveType))
+                            UIState.Success(
+                                LeaveRequestState().copy(
+                                    leaveTypes = leaveTypes,
+                                    selectedLeaveType = selectedLeaveType
+                                )
+                            )
                     }
 
                     is EResult.Error -> {
@@ -77,7 +83,7 @@ class LeaveRequestViewModel @Inject constructor(
         }
     }
 
-    fun onLeaveTypeChange(leaveType: String) {
+    fun onLeaveTypeChange(leaveType: LeaveType) {
         if (uiState.value is UIState.Success) {
             val currentState = (uiState.value as UIState.Success).data
             val updatedState = currentState.copy(selectedLeaveType = leaveType)
@@ -111,12 +117,13 @@ class LeaveRequestViewModel @Inject constructor(
 
     fun applyLeave() {
         viewModelScope.launch {
-            val leaveTypes: List<LeaveType> = (_uiState.value as UIState.Success).data.leaveTypes
-            val selectedLeaveType: String =
+            val selectedLeaveType: LeaveType? =
                 (_uiState.value as UIState.Success).data.selectedLeaveType
-            val leaveTypeID = leaveTypes.find { it.name == selectedLeaveType }?.id.toString()
-
-            repository.applyLeaveRequest(leaveTypeID, leaveCount.toString(), applyDate)
+            val leaveTypeID = selectedLeaveType?.id.toString()
+            val fromDate = (uiState.value as UIState.Success).data.fromDate
+            val toDate = (uiState.value as UIState.Success).data.toDate
+            val leaveCount = getDayCount(fromDate, toDate)
+            repository.applyLeaveRequest(leaveTypeID, leaveCount.toString(), fromDate)
                 .collect { result ->
                     Log.d("EduLogs", "applyLeave: $result")
                     when (result) {
@@ -145,6 +152,21 @@ class LeaveRequestViewModel @Inject constructor(
         getLeaveDetails()
     }
 
+    fun getDayCount(fromDate: String, toDate: String): Long {
+        // Define the date format
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // Parse the dates
+        val startDate = dateFormat.parse(fromDate)
+        val endDate = dateFormat.parse(toDate)
+
+        // Calculate the difference in time (milliseconds)
+        val diffInMillis = endDate.time - startDate.time
+
+        // Convert the difference in time to days
+        return diffInMillis / (1000 * 60 * 60 * 24)
+    }
+
 }
 
 sealed class UIState {
@@ -158,7 +180,7 @@ data class LeaveRequestState(
     val fromDate: String = "",
     val toDate: String = "",
     val leaveTypes: List<LeaveType> = emptyList(),
-    val selectedLeaveType: String = "",
+    val selectedLeaveType: LeaveType? = null,
     val halfDay: Boolean = false,
     val halfDayPeriod: String = "First Half",
     val reason: String = ""

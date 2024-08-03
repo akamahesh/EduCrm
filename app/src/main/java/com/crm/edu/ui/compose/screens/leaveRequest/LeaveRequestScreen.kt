@@ -3,10 +3,11 @@ package com.crm.edu.ui.compose.screens.leaveRequest
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -79,7 +80,7 @@ private fun LeaveRequestScreenInterval(
 
         when (state) {
             is UIState.Loading -> {
-                CircularProgressIndicator()
+                LoadingLayout(padding)
             }
 
             is UIState.Success -> {
@@ -102,6 +103,19 @@ private fun LeaveRequestScreenInterval(
 
     }
 
+}
+
+@Composable
+fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues) // Use padding values from Scaffold to avoid overlap
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
 }
 
 @Composable
@@ -129,16 +143,21 @@ fun SuccessLayout(
     viewModel: LeaveRequestViewModel
 ) {
 
+    Log.d("EduLogs", "Leave Request Detail: $leaveRequestDetail")
     val calendar = Calendar.getInstance()
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
             val selectedDate = "$dayOfMonth/${month + 1}/$year"
+            val formattedMonth = String.format("%02d", month + 1)
+            val formattedDay = String.format("%02d", dayOfMonth)
+
+            val formattedDate = "$year-${formattedMonth}-$formattedDay"
             // Determine if setting "From" or "To" date based on UI interaction
             if (viewModel.isSelectingFromDate) {
-                viewModel.onFromDateChange(selectedDate)
+                viewModel.onFromDateChange(formattedDate)
             } else {
-                viewModel.onToDateChange(selectedDate)
+                viewModel.onToDateChange(formattedDate)
             }
         },
         calendar.get(Calendar.YEAR),
@@ -160,16 +179,16 @@ fun SuccessLayout(
             onValueChange = { },
             label = { Text("From") },
             trailingIcon = {
-                Icon(Icons.Default.DateRange, contentDescription = null)
-            },
-            readOnly = true,
-            enabled = false,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
+                IconButton(onClick = {
                     viewModel.isSelectingFromDate = true
                     datePickerDialog.show()
+                }) {
+                Icon(Icons.Default.DateRange, contentDescription = null)
                 }
+            },
+            readOnly = true,
+            modifier = Modifier
+                .fillMaxWidth()
         )
 
         // To Date Picker (Placeholder for simplicity)
@@ -178,16 +197,17 @@ fun SuccessLayout(
             onValueChange = {},
             label = { Text("To") },
             trailingIcon = {
-                Icon(Icons.Default.DateRange, contentDescription = null)
-            },
-            readOnly = true,
-            enabled = false,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
+                IconButton(onClick = {
                     viewModel.isSelectingFromDate = false
                     datePickerDialog.show()
+                }) {
+                Icon(Icons.Default.DateRange, contentDescription = null)
                 }
+            },
+            readOnly = true,
+            modifier = Modifier
+                .fillMaxWidth()
+
         )
 
         // Leave Type Dropdown
@@ -197,9 +217,10 @@ fun SuccessLayout(
             onExpandedChange = { leaveTypeExpanded = !leaveTypeExpanded }
         ) {
             OutlinedTextField(
-                value = leaveRequestDetail.selectedLeaveType,
+                value = leaveRequestDetail.selectedLeaveType?.name.toString(),
                 onValueChange = {},
                 label = { Text("Leave Type") },
+                readOnly = true,
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = leaveTypeExpanded)
                 },
@@ -209,12 +230,11 @@ fun SuccessLayout(
                 expanded = leaveTypeExpanded,
                 onDismissRequest = { leaveTypeExpanded = false }
             ) {
-                val leaves = leaveRequestDetail.leaveTypes
-                leaves.forEach { type ->
+                leaveRequestDetail.leaveTypes.forEach { leaveType ->
                     DropdownMenuItem(
-                        text = { Text(type.name.toString()) },
+                        text = { Text(leaveType.name.toString()) },
                         onClick = {
-                            viewModel.onLeaveTypeChange(type.name.toString())
+                            viewModel.onLeaveTypeChange(leaveType = leaveType)
                             leaveTypeExpanded = false
                         }
                     )
