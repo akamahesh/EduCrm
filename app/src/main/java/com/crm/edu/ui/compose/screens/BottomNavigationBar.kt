@@ -100,7 +100,9 @@ fun BottomNavigationBar(navController: NavHostController) {
             }
 
             composable(route = Screen.LeaveRequest.route) {
-                LeaveRequestScreen(navController)
+                LeaveRequestScreen(navController) {
+                    navController.navigateUp()
+                }
             }
             composable(route = Screen.HolidayCalendar.route) {
                 HolidayCalendarScreen(navController, onUpClick = {

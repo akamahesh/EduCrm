@@ -30,7 +30,7 @@ class LeaveRequestRepository @Inject constructor(private val remoteDataSource: R
     fun applyLeaveRequest(
         leaveType: String,
         leaveCount: String,
-        applyDates: String
+        applyDates: String,
     ): Flow<EResult<LeaveRequestResponseDTO>> = flow {
         emit(EResult.Loading)
         try {
