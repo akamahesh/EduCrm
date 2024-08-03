@@ -7,9 +7,11 @@ import com.crm.edu.data.AppDatabase
 import com.crm.edu.data.holiday.HolidayApi
 import com.crm.edu.data.holiday.local.HolidayDao
 import com.crm.edu.data.leaverequest.remote.LeaveRequestApi
+import com.crm.edu.data.leaves.remote.LeavesApi
 import com.crm.edu.data.login.local.pref.UserPreferences
 import com.crm.edu.data.login.remote.api.LoginApi
 import com.crm.edu.data.markAttendance.remote.MarkAttendanceApi
+import com.crm.edu.data.myteam.remote.MyTeamApi
 import com.crm.edu.utils.Constants
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -87,6 +89,16 @@ object AppModule {
     @Singleton
     fun provideLoginApi(retrofit: Retrofit): LoginApi =
         retrofit.create(LoginApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideLeavesApi(retrofit: Retrofit): LeavesApi =
+        retrofit.create(LeavesApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideMyTeamApi(retrofit: Retrofit): MyTeamApi =
+        retrofit.create(MyTeamApi::class.java)
 
     @Provides
     @Singleton

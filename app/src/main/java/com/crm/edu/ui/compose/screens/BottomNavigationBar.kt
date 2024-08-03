@@ -24,8 +24,8 @@ import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
 import com.crm.edu.ui.compose.screens.calendar.CalendarScreen
 import com.crm.edu.ui.compose.screens.dashboard.DashboardScreen
 import com.crm.edu.ui.compose.screens.holidayLeaves.HolidayCalendarScreen
-import com.crm.edu.ui.compose.screens.leave.LeaveScreen
 import com.crm.edu.ui.compose.screens.leaveRequest.LeaveRequestScreen
+import com.crm.edu.ui.compose.screens.leaves.LeavesScreen
 import com.crm.edu.ui.compose.screens.markAttendance.MarkAttendanceScreen
 import com.crm.edu.ui.compose.screens.myteam.MyTeamScreen
 
@@ -110,7 +110,9 @@ fun BottomNavigationBar(navController: NavHostController) {
                 })
             }
             composable(route = Screen.Leaves.route) {
-                LeaveScreen(navController)
+                LeavesScreen(navController){
+                    navController.navigateUp()
+                }
             }
 
             composable(route = Screen.Calendar.route) {
@@ -124,7 +126,9 @@ fun BottomNavigationBar(navController: NavHostController) {
                 }
             }
             composable(route = Screen.MyTeam.route) {
-                MyTeamScreen(navController)
+                MyTeamScreen(navController = navController){
+                    navController.navigateUp()
+                }
             }
 
         }

@@ -26,7 +26,7 @@ class LeaveRequestViewModel @Inject constructor(
 
 
     private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
-    val uiState: StateFlow<UIState> get() = _uiState
+    internal val uiState: StateFlow<UIState> get() = _uiState
 
     var isSelectingFromDate = true
 
@@ -169,7 +169,7 @@ class LeaveRequestViewModel @Inject constructor(
 
 }
 
-sealed class UIState {
+internal sealed class UIState {
     object Loading : UIState()
     data class Success(val data: LeaveRequestState) : UIState()
     data class Error(val message: String) : UIState()

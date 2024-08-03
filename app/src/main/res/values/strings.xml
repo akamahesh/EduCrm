@@ -6,4 +6,6 @@
     <string name="holiday_title">Holiday</string>
     <string name="my_attendance_title">My Attendance</string>
     <string name="leave_request_title">Leave Request</string>
+    <string name="my_team_title">My Team</string>
+    <string name="leaves_title">Leaves</string>
 </resources>
