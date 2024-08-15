@@ -34,6 +34,7 @@ import java.util.Date
 
 @Composable
 fun AttendanceScreenWithCalendarView(
+    staffId: String? = null,
     navController: NavHostController,
     viewModel: AttendanceScreenWithCalendarViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
@@ -109,7 +110,7 @@ private fun TopBar(
 @Composable
 fun PreviewAttendanceScreenWithCalendarView() {
     val navController = rememberNavController()
-    AttendanceScreenWithCalendarView(navController)
+    AttendanceScreenWithCalendarView(navController = navController)
 }
 
 

@@ -13,5 +13,5 @@ sealed class Screen(val route: String) {
     data object Leaves : Screen("leaves_screen")
     data object Calendar : Screen("calendar_screen")
     data object MyTeam : Screen("my_team_screen")
-    data object CalendarV2 : Screen("calendar_v2_screen")
+    data object CalendarV2 : Screen("calendar_v2_screen?staffId={staffId}")
 }

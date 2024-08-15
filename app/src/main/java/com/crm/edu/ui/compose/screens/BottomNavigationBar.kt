@@ -17,8 +17,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.crm.edu.ui.compose.Screen
 import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
 import com.crm.edu.ui.compose.screens.calendar.CalendarScreen
@@ -127,12 +129,23 @@ fun BottomNavigationBar(navController: NavHostController) {
                 }
             }
             composable(route = Screen.MyTeam.route) {
-                MyTeamScreen(navController = navController){
-                    navController.navigateUp()
-                }
+                MyTeamScreen(
+                    navController = navController,
+                    onUpClick = { navController.navigateUp() },
+                    onTeamMemberSelected = {
+                        val route = Screen.CalendarV2.route.replace("{staffId}", it)
+                        navController.navigate(route = route)
+                    })
             }
-            composable(route = Screen.CalendarV2.route) {
-                AttendanceScreenWithCalendarView(navController = navController) {
+            composable(route = Screen.CalendarV2.route, arguments = listOf(
+                navArgument("staffId") {
+                    defaultValue = "default"
+                    type = NavType.StringType
+                }
+            )) { navBackStackEntry ->
+                /* Extracting the id from the route */
+                val staffId = navBackStackEntry.arguments?.getString("staffId")
+                AttendanceScreenWithCalendarView(staffId = staffId, navController = navController) {
                     navController.navigateUp()
                 }
             }

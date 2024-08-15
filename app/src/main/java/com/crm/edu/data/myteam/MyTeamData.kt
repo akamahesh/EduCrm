@@ -7,4 +7,5 @@ data class StaffAttendanceData(
     val colour: String,
     val designation: String,
     val staffName: String,
+    val staffId: String,
 )
