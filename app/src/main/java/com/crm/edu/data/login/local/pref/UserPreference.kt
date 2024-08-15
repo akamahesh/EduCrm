@@ -60,6 +60,15 @@ class UserPreferences(context: Context) {
             .first()
     }
 
+    // Suspend function to get the reporting ID directly
+    suspend fun getJWTtoken(): String? {
+        return dataStore.data
+            .map { preferences ->
+                preferences[UserPreferencesKeys.JWT_TOKEN]
+            }
+            .first()
+    }
+
     // Save User Data
     suspend fun saveUserData(userData: Map<String, String>) {
         dataStore.edit { preferences ->
@@ -115,6 +124,12 @@ class UserPreferences(context: Context) {
                         value
 
                     UserPreferencesKeys.DEPARTMENT.name -> preferences[UserPreferencesKeys.DEPARTMENT] =
+                        value
+
+                    UserPreferencesKeys.LOGIN_TOKEN.name -> preferences[UserPreferencesKeys.LOGIN_TOKEN] =
+                        value
+
+                    UserPreferencesKeys.JWT_TOKEN.name -> preferences[UserPreferencesKeys.JWT_TOKEN] =
                         value
                 }
             }
