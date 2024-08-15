@@ -1,12 +1,13 @@
 package com.crm.edu.data.myteam
 
-import com.crm.edu.data.holiday.local.HolidayEntity
-import com.crm.edu.data.holiday.remote.HolidayListDTO
+import com.crm.edu.data.myteam.local.StaffAttendanceEntity
+import com.crm.edu.data.myteam.remote.StaffDTO
 
-fun HolidayListDTO.asEntity() = HolidayEntity(
-    holidayName = holidayName.orEmpty(),
-    colour = colour.orEmpty(),
-    holidayDate = holidayDate.orEmpty(),
-    weekDay = weekDay.orEmpty(),
-    holidayType = holidayType.orEmpty()
+fun StaffDTO.asEntity() = StaffAttendanceEntity(
+    time = time,
+    title = title,
+    start = start,
+    colour = colour,
+    designation = designation,
+    staff_name = staffName
 )

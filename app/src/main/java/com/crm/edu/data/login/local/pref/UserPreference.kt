@@ -1,6 +1,7 @@
 package com.crm.edu.data.login.local.pref
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -127,10 +128,13 @@ class UserPreferences(context: Context) {
     }
 
     suspend fun isUserLoggedIn(): Boolean {
-        return dataStore.data
+        val loggedIn = dataStore.data
             .map { preferences ->
                 preferences[UserPreferencesKeys.IS_LOGGED_IN]
             }
             .first() ?: false
+
+        Log.d("EduLogs", "User Pref User Logged in :  $loggedIn")
+        return loggedIn
     }
 }

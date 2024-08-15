@@ -10,18 +10,18 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MyTeamDao {
 
-    @Query(value = "SELECT * FROM holiday_data")
-    fun getHolidayEntities(): Flow<List<HolidayEntity>>
+    @Query(value = "SELECT * FROM staff_attendance_data")
+    fun getStaffAttendanceData(): Flow<List<StaffAttendanceEntity>>
 
     /**
      * Inserts [holidayEntities] into the db if they don't exist, and ignores those that do
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertOrIgnoreHolidays(holidayEntities: List<HolidayEntity>): List<Long>
+    suspend fun insertOrIgnoreStaffAttendanceData(holidayEntities: List<StaffAttendanceEntity>): List<Long>
 
     /**
      * Inserts or updates [entities] in the db under the specified primary keys
      */
     @Upsert
-    suspend fun upsertHolidays(entities: List<HolidayEntity>)
+    suspend fun upsertHolidays(entities: List<StaffAttendanceEntity>)
 }

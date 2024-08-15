@@ -1,23 +1,35 @@
 package com.crm.edu.data.myteam
 
 import com.crm.edu.core.EResult
-import com.crm.edu.data.leaverequest.remote.LeaveRequestDetailDTO
-import com.crm.edu.data.leaverequest.remote.LeaveRequestResponseDTO
-import com.crm.edu.data.leaverequest.remote.RemoteDataSource
+import com.crm.edu.data.myteam.local.LocalDataSource
+import com.crm.edu.data.myteam.local.StaffAttendanceEntity
+import com.crm.edu.data.myteam.local.asExternalModel
+import com.crm.edu.data.myteam.remote.RemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
-class MyTeamRepository @Inject constructor(private val remoteDataSource: RemoteDataSource) {
+class MyTeamRepository @Inject constructor(
+    private val localDataSource: LocalDataSource,
+    private val remoteDataSource: RemoteDataSource
+) {
 
 
-    fun getLeaveDetails(): Flow<EResult<LeaveRequestDetailDTO>> = flow {
+    fun getTeamAttendance(
+        month: String,
+        year: String,
+        teamStatus: String
+    ): Flow<EResult<List<StaffAttendanceData>>> = flow {
         emit(EResult.Loading)
         try {
-            val remoteData = remoteDataSource.fetchLeaveDetail()
-            emit(EResult.Success(remoteData))
+            val remoteData = remoteDataSource.getTeamAttendance(month, year, teamStatus)
+            val staffAttendanceEntities = remoteData.data.map {
+                it.asEntity()
+            }
+            localDataSource.insertHolidayEntities(staffAttendanceEntities)
+            emit(EResult.Success(staffAttendanceEntities.map(StaffAttendanceEntity::asExternalModel)))
         } catch (ex: Exception) {
             emit(EResult.Error(ex))
         }
@@ -27,23 +39,5 @@ class MyTeamRepository @Inject constructor(private val remoteDataSource: RemoteD
         emit(EResult.Error(e))
     }
 
-    fun applyLeaveRequest(
-        leaveType: String,
-        leaveCount: String,
-        applyDates: String,
-    ): Flow<EResult<LeaveRequestResponseDTO>> = flow {
-        emit(EResult.Loading)
-        try {
-            val remoteData = remoteDataSource.applyLeaveRequest(leaveType, leaveCount, applyDates)
-            emit(EResult.Success(remoteData))
-        } catch (ex: Exception) {
-            emit(EResult.Error(ex))
-        }
-    }.onStart {
-        emit(EResult.Loading)
-    }.catch { e ->
-        emit(EResult.Error(e))
-
-    }
 
 }

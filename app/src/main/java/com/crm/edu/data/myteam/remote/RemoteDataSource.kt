@@ -1,11 +1,17 @@
 package com.crm.edu.data.myteam.remote
 
-import com.crm.edu.data.holiday.HolidayApi
 import javax.inject.Inject
 
 class RemoteDataSource @Inject constructor(
-    private val holidayApi: HolidayApi
+    private val myTeamApi: MyTeamApi
 ) {
 
-    suspend fun getHolidayData() = holidayApi.getHolidayData()
+    suspend fun getTeamAttendance(month: String, year: String, teamStatus: String): StaffAttendanceDTO {
+        val requestBody = mapOf<String, String?>(
+            "month" to month,
+            "year" to year,
+            "team_status" to teamStatus
+        )
+        return myTeamApi.getTeamAttendance(requestBody)
+    }
 }

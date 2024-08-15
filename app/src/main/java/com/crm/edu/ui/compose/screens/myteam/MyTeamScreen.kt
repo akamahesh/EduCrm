@@ -2,6 +2,7 @@ package com.crm.edu.ui.compose.screens.myteam
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -16,6 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +29,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.crm.edu.R
+import com.crm.edu.data.myteam.StaffAttendanceData
 
 data class TeamMember(
     val name: String,
@@ -49,26 +56,67 @@ fun MyTeamScreen(
     viewModel: MyTeamScreenViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
 ) {
-    MyTeamScreenInternal(navController, viewModel, onUpClick)
+    val state by viewModel.uiState.collectAsState()
+    MyTeamScreenInternal(navController, viewModel, state, onUpClick)
 }
 
 @Composable
 private fun MyTeamScreenInternal(
     navController: NavHostController,
     viewModel: MyTeamScreenViewModel,
-    onUpClick: () -> Unit
+    state: UIState,
+    onUpClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopBar(onUpClick = onUpClick)
         },
     ) { padding ->
-        TeamList(padding, members = getTeamList())
+        when (state) {
+            is UIState.Loading -> {
+                LoadingLayout(padding)
+            }
+
+            is UIState.Success -> {
+                if (state.data.staffList.isEmpty()) {
+                    ErrorScreen("No Team Members Found", false) {
+                        viewModel.fetchStaffAttendance()
+                    }
+                } else {
+                    TeamList(padding, members = state.data.staffList)
+                }
+            }
+
+            is UIState.Error -> {
+                ErrorScreen(state.message) {
+                    viewModel.fetchStaffAttendance()
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun TeamList(padding: PaddingValues = PaddingValues(), members: List<TeamMember>) {
+private fun ErrorScreen(message: String, showRetry: Boolean = true, onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = message)
+        Spacer(modifier = Modifier.height(16.dp))
+        if (showRetry) {
+            Button(onClick = onRetry) {
+                Text(text = "Retry")
+            }
+        }
+
+    }
+}
+
+
+@Composable
+private fun TeamList(padding: PaddingValues = PaddingValues(), members: List<StaffAttendanceData>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -80,9 +128,22 @@ fun TeamList(padding: PaddingValues = PaddingValues(), members: List<TeamMember>
     }
 }
 
+@Composable
+private fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues) // Use padding values from Scaffold to avoid overlap
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
 
 @Composable
-fun TeamMemberItem(member: TeamMember) {
+private fun TeamMemberItem(member: StaffAttendanceData) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -90,20 +151,24 @@ fun TeamMemberItem(member: TeamMember) {
             .background(Color.White, shape = RoundedCornerShape(8.dp)),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f).padding(horizontal = 8.dp, vertical = 4.dp)) {
-            Text(text = member.name, style = MaterialTheme.typography.bodyLarge)
-            Text(text = member.role, style = MaterialTheme.typography.bodySmall)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Text(text = member.staffName, style = MaterialTheme.typography.bodyLarge)
+            Text(text = member.designation, style = MaterialTheme.typography.bodySmall)
         }
         Spacer(modifier = Modifier.width(8.dp))
         Box(
             modifier = Modifier
                 .background(
-                    if (member.checkedIn) Color(0xFFD0EFD7) else Color(0xFFD3D3D3),
+                    Color(android.graphics.Color.parseColor(member.colour)),
                     shape = RoundedCornerShape(4.dp)
                 )
                 .padding(horizontal = 4.dp, vertical = 2.dp)
         ) {
-            val text = if (member.checkedIn) "Checked in" else "Not Checked in"
+            val text = member.title
             Text(
                 text = text,
                 color = Color.Black,
@@ -122,26 +187,17 @@ fun TeamMemberItem(member: TeamMember) {
 }
 
 
-private fun getTeamList(): List<TeamMember> {
-    val members = listOf(
-        TeamMember("AmarJeet Kumar", "Digital Marketing Manager", false, "00.00 AM"),
-        TeamMember("Anita Shende", "Graphics Designer", true, "10.30 AM"),
-        TeamMember("Sahil Choudhary", "Developer", true, "00.00 AM"),
-        TeamMember("Dipti Jadhav", "Content writer", true, "00.00 AM"),
-        TeamMember("Kabbyik Mitra", "Content writer", false, "00.00 AM"),
-        TeamMember("Prashant", "Content writer", true, "00.00 AM"),
-        TeamMember("Ritika Manocha", "SEO", true, "00.00 AM"),
-        TeamMember("Ruby", "SEO", false, "00.00 AM"),
-        TeamMember("AmarJeet Kumar", "Digital Marketing Manager", false, "00.00 AM"),
-        TeamMember("Anita Shende", "Graphics Designer", true, "10.30 AM"),
-        TeamMember("Sahil Choudhary", "Developer", true, "00.00 AM"),
-        TeamMember("Dipti Jadhav", "Content writer", true, "00.00 AM"),
-        TeamMember("Kabbyik Mitra", "Content writer", false, "00.00 AM"),
-        TeamMember("Prashant", "Content writer", true, "00.00 AM"),
-        TeamMember("Ritika Manocha", "SEO", true, "00.00 AM"),
-        TeamMember("Ruby", "SEO", false, "00.00 AM")
+private fun getTeamList(): List<StaffAttendanceData> {
+    return listOf(
+        StaffAttendanceData(
+            time = "",
+            title = "Absent",
+            start = "2024-08-15",
+            colour = "#F4DDE5",
+            designation = "Assistant",
+            staffName = "Sakshi Khurana"
+        )
     )
-    return members
 }
 
 @Preview

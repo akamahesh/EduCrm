@@ -1,10 +1,12 @@
 package com.crm.edu.data.myteam.remote
 
-import com.crm.edu.data.holiday.remote.HolidayDTO
-import retrofit2.http.GET
+import retrofit2.http.FieldMap
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.POST
 
 interface MyTeamApi {
-    //    @GET("https://95fe-103-119-199-35.ngrok-free.app/holiday.json")
-    @GET("holiday_list")
-    suspend fun getHolidayData(): HolidayDTO
+
+    @FormUrlEncoded
+    @POST("staff_attendance_list")
+    suspend fun getTeamAttendance(@FieldMap(encoded = false) data: Map<String, String?>): StaffAttendanceDTO
 }
