@@ -6,5 +6,5 @@ class RemoteDataSource @Inject constructor(
     private val leavesApi: LeavesApi
 ) {
 
-    suspend fun getLeavesData() = leavesApi.getHolidayData()
+    suspend fun getLeavesData() = leavesApi.getLeavesData()
 }

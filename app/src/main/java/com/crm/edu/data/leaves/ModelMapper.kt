@@ -1,12 +1,23 @@
 package com.crm.edu.data.leaves
 
-import com.crm.edu.data.holiday.local.HolidayEntity
-import com.crm.edu.data.holiday.remote.HolidayListDTO
+import com.crm.edu.data.leaves.local.LeaveEntity
+import com.crm.edu.data.leaves.remote.LeaveDetailDTO
 
-fun HolidayListDTO.asEntity() = HolidayEntity(
-    holidayName = holidayName.orEmpty(),
-    colour = colour.orEmpty(),
-    holidayDate = holidayDate.orEmpty(),
-    weekDay = weekDay.orEmpty(),
-    holidayType = holidayType.orEmpty()
+fun LeaveDetailDTO.asEntity() = LeaveEntity(
+    id = id,
+    staffId = staffId,
+    staffName = staffName,
+    leaveCount = leaveCount,
+    leaveType = leaveType,
+    createdBy = createdBy,
+    createdDate = createdDate,
+    approvalStatus = approvalStatus,
+    approvalBy = approvalBy,
+    approvalDate = approvalDate,
+    applyDate = applyDate,
+    message = message,
+    rejectMessage = rejectMessage,
+    isAbsent = isAbsent,
+    attendanceStatus = attendanceStatus,
+    reason = reason,
 )

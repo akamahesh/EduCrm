@@ -106,7 +106,7 @@ private fun LeaveRequestScreenInterval(
 }
 
 @Composable
-fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
+private fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -136,7 +136,7 @@ private fun ErrorScreen(message: String, onRetry: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SuccessLayout(
+private fun SuccessLayout(
     context: Context,
     padding: PaddingValues,
     leaveRequestDetail: LeaveRequestState,

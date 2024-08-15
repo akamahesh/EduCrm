@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.crm.edu.R
+import com.crm.edu.data.leaves.LeaveData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,23 +56,89 @@ fun LeavesScreen(
     viewModel: LeavesViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
 ) {
-    var selectedFilter by remember { mutableStateOf("All") }
-    val leaveList = getLeaveList()
+    val state by viewModel.uiState.collectAsState()
 
+    LeavesScreenInternal(
+        state,
+        onUpClick
+    ) {
+        viewModel.fetchLeaveRequests()
+    }
+}
+
+@Composable
+private fun LeavesScreenInternal(
+    state: UIState,
+    onUpClick: () -> Unit,
+    retry: () -> Unit,
+) {
     Scaffold(
         topBar = {
             TopBar(onUpClick = onUpClick)
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            FilterDropdown(selectedFilter) { selectedFilter = it }
-            Spacer(modifier = Modifier.height(16.dp))
-            LeaveRequestList(leaveList)
+        when (state) {
+            is UIState.Loading -> {
+                LoadingLayout(paddingValues)
+            }
+
+            is UIState.Success -> {
+                SuccessLayout(paddingValues, state.data.leaveDataList)
+            }
+
+            is UIState.Error -> {
+                ErrorScreen(state.message) {
+                    retry.invoke()
+                }
+            }
+
         }
+    }
+}
+
+
+@Composable
+private fun SuccessLayout(paddingValues: PaddingValues, leaveDataList: List<LeaveData>) {
+    var selectedFilter by remember { mutableStateOf("All") }
+    Column(
+        modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()
+    ) {
+        FilterDropdown(selectedFilter) { selectedFilter = it }
+        Spacer(modifier = Modifier.height(16.dp))
+        LeaveRequestList(leaveDataList)
+    }
+}
+
+@Composable
+private fun ErrorScreen(message: String, showRetry: Boolean = true, onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = message)
+        Spacer(modifier = Modifier.height(16.dp))
+        if (showRetry) {
+            Button(onClick = onRetry) {
+                Text(text = "Retry")
+            }
+        }
+
+    }
+}
+
+@Composable
+private fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues) // Use padding values from Scaffold to avoid overlap
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }
 
@@ -104,7 +174,7 @@ fun FilterDropdown(selectedFilter: String, onFilterSelected: (String) -> Unit) {
 }
 
 @Composable
-fun LeaveRequestList(leaveRequests: List<LeaveRequest>) {
+fun LeaveRequestList(leaveRequests: List<LeaveData>) {
     LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
         items(leaveRequests.size) { index ->
             LeaveRequestCard(leaveRequests[index])
@@ -114,7 +184,7 @@ fun LeaveRequestList(leaveRequests: List<LeaveRequest>) {
 }
 
 @Composable
-fun LeaveRequestCard(request: LeaveRequest) {
+fun LeaveRequestCard(leaveData: LeaveData) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -126,22 +196,26 @@ fun LeaveRequestCard(request: LeaveRequest) {
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = request.name, fontWeight = FontWeight.Bold)
+            Text(text = leaveData.staffName, fontWeight = FontWeight.Bold)
+            if (leaveData.approvalStatus == "1") {
+                Text(text = "Approved", fontWeight = FontWeight.Bold)
+            }
+            val leaveStatus = getLeaveStatus(leaveData.approvalStatus)
             Box(
                 modifier = Modifier
-                    .background(request.status.color, shape = RoundedCornerShape(8.dp))
+                    .background(leaveStatus.color, shape = RoundedCornerShape(8.dp))
                     .padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
-                Text(text = request.status.label, color = Color.White)
+                Text(text = leaveStatus.label, color = Color.White)
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "From: ${request.fromDate}")
-        Text(text = "To: ${request.toDate}")
-        Text(text = "Leave Type: ${request.leaveType}")
+        Text(text = "From: ${leaveData.createdBy}")
+        Text(text = "To: ${leaveData.createdBy}")
+        Text(text = "Leave Type: ${getLeaveType(leaveData.leaveType)}")
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Reason:", fontWeight = FontWeight.Bold)
-        Text(text = request.reason)
+        Text(text = leaveData.reason)
         Spacer(modifier = Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             Button(
@@ -161,6 +235,24 @@ fun LeaveRequestCard(request: LeaveRequest) {
     }
 }
 
+private fun getLeaveStatus(status: String): LeaveStatus {
+    return when (status) {
+        "1" -> LeaveStatus.Approved
+        "2" -> LeaveStatus.Rejected
+        "3" -> LeaveStatus.Cancelled
+        else -> LeaveStatus.Pending
+    }
+}
+
+private fun getLeaveType(type: String): String {
+    return when (type) {
+        "1" -> "Casual Leave"
+        "2" -> "Sick Leave"
+        "3" -> "Planned Leave"
+        else -> "Other"
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewLeaveScreen() {
@@ -168,43 +260,8 @@ fun PreviewLeaveScreen() {
     LeavesScreen(navController)
 }
 
-private fun getLeaveList(): List<LeaveRequest> {
-    val leaveRequests = listOf(
-        LeaveRequest(
-            "Dipti Jadhav",
-            "22|01|2024",
-            "30|01|2024",
-            "Planned Leave",
-            "I am planning holidays with family for a week.",
-            LeaveStatus.Pending
-        ),
-        LeaveRequest(
-            "Anita Shende",
-            "11|01|2024",
-            "12|01|2024",
-            "Sick Leave",
-            "I am suffering from fever.",
-            LeaveStatus.Approved
-        ),
-        LeaveRequest(
-            "Ritika",
-            "21|01|2024",
-            "25|01|2024",
-            "Casual Leave",
-            "I have some work.",
-            LeaveStatus.Rejected
-        ),
-        LeaveRequest(
-            "Amarheet",
-            "22|01|2024",
-            "24|01|2024",
-            "Casual Leave",
-            "",
-            LeaveStatus.Cancelled
-        )
-    )
-
-    return leaveRequests
+private fun getLeaveList(): List<LeaveData> {
+    return emptyList()
 }
 
 
@@ -229,15 +286,6 @@ private fun TopBar(
         },
     )
 }
-
-data class LeaveRequest(
-    val name: String,
-    val fromDate: String,
-    val toDate: String,
-    val leaveType: String,
-    val reason: String,
-    val status: LeaveStatus
-)
 
 enum class LeaveStatus(val color: Color, val label: String) {
     Pending(Color(0xFFFFA500), "Pending"),
