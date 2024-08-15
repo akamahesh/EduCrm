@@ -7,6 +7,7 @@ import com.crm.edu.data.AppDatabase
 import com.crm.edu.data.holiday.HolidayApi
 import com.crm.edu.data.holiday.local.HolidayDao
 import com.crm.edu.data.leaverequest.remote.LeaveRequestApi
+import com.crm.edu.data.leaves.local.LeavesDao
 import com.crm.edu.data.leaves.remote.LeavesApi
 import com.crm.edu.data.login.local.pref.UserPreferences
 import com.crm.edu.data.login.remote.api.LoginApi
@@ -119,4 +120,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMyTeamNewsDao(db: AppDatabase): MyTeamDao = db.myTeamDao()
+
+    @Provides
+    @Singleton
+    fun provideLeavesDao(db: AppDatabase): LeavesDao = db.leaveDao()
 }

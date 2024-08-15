@@ -8,5 +8,5 @@ class LocalDataSource @Inject constructor(
 ) {
     fun getHolidayEntities(): Flow<List<HolidayEntity>> = holidayDao.getHolidayEntities()
 
-    suspend fun insertHolidayEntities(holidayEntities: List<HolidayEntity>) = holidayDao.insertOrIgnoreHolidays(holidayEntities)
+    suspend fun insertHolidayEntities(holidayEntities: List<HolidayEntity>) = holidayDao.clearAndInsertHolidays(holidayEntities)
 }

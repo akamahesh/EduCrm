@@ -69,7 +69,7 @@ private fun HolidayCalendarScreenInternal(
 
         when (state) {
             is EResult.Loading -> {
-                CircularProgressIndicator()
+                LoadingLayout()
             }
 
             is EResult.SuccessAndLoading -> {
@@ -92,6 +92,19 @@ private fun HolidayCalendarScreenInternal(
     }
 }
 
+
+@Composable
+private fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues) // Use padding values from Scaffold to avoid overlap
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
 
 @Composable
 private fun ErrorScreen(message: String, onRetry: () -> Unit) {

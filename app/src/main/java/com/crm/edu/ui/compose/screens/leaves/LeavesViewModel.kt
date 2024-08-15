@@ -1,6 +1,68 @@
 package com.crm.edu.ui.compose.screens.leaves
 
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.crm.edu.core.EResult
+import com.crm.edu.data.leaves.LeaveData
+import com.crm.edu.data.leaves.LeaveRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LeavesViewModel : ViewModel() {
+@HiltViewModel
+class LeavesViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val repository: LeaveRepository
+) : ViewModel() {
+
+
+    private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
+    internal val uiState: StateFlow<UIState> get() = _uiState
+
+
+    init {
+        fetchLeaveRequests()
+    }
+
+    fun fetchLeaveRequests() {
+        viewModelScope.launch {
+            repository.getLeaveData().collect { result ->
+                Log.d("EduLogs", "fetchLeaveRequests: $result")
+                when (result) {
+                    is EResult.Loading -> {
+                        _uiState.value = UIState.Loading
+                    }
+
+                    is EResult.Success -> {
+                        _uiState.value = UIState.Success(LeavesDataState(result.data))
+                    }
+
+                    is EResult.SuccessAndLoading -> {
+                        _uiState.value = UIState.Success(LeavesDataState(result.data))
+                    }
+
+                    is EResult.Error -> {
+                        _uiState.value = UIState.Error(result.exception.message.toString())
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
 }
+
+internal sealed class UIState {
+    object Loading : UIState()
+    data class Success(val data: LeavesDataState) : UIState()
+    data class Error(val message: String) : UIState()
+}
+
+data class LeavesDataState(
+    val leaveDataList: List<LeaveData>
+)

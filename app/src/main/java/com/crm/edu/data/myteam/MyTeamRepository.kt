@@ -7,6 +7,7 @@ import com.crm.edu.data.myteam.local.asExternalModel
 import com.crm.edu.data.myteam.remote.RemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
@@ -16,13 +17,14 @@ class MyTeamRepository @Inject constructor(
     private val remoteDataSource: RemoteDataSource
 ) {
 
-
     fun getTeamAttendance(
         month: String,
         year: String,
         teamStatus: String
     ): Flow<EResult<List<StaffAttendanceData>>> = flow {
         emit(EResult.Loading)
+        val localData = localDataSource.getStaffAttendance().firstOrNull() ?: emptyList()
+        emit(EResult.SuccessAndLoading(localData.map(StaffAttendanceEntity::asExternalModel)))
         try {
             val remoteData = remoteDataSource.getTeamAttendance(month, year, teamStatus)
             val staffAttendanceEntities = remoteData.data.map {
