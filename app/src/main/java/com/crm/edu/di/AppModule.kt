@@ -49,9 +49,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthInterceptor(): AuthInterceptor {
-        return AuthInterceptor("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpbl90b2tlbiI6ImY0YmRmODlmMWI5NmI5NWFlMjRlMmQ4YWVhODkwZTdjIiwiaWF0IjoxNzIzNjkyMjE3LCJleHAiOjE3Mjg4NzYyMTd9.Lr1l2IjqRMXG5fEHVew4dY-M6mft01V7PGz_d_Yc0jM")
+    fun provideAuthInterceptor(userPreferences: UserPreferences): AuthInterceptor {
+        return AuthInterceptor(userPreferences)
     }
+
 
     @Provides
     @Singleton
