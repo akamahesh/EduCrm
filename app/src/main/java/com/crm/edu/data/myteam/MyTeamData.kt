@@ -1,9 +1,10 @@
 package com.crm.edu.data.myteam
 
-data class MyTeamData(
-    val holidayName: String,
+data class StaffAttendanceData(
+    val time: String,
+    val title: String,
+    val start: String,
     val colour: String,
-    val holidayDate: String,
-    val weekDay: String,
-    val holidayType: String,
+    val designation: String,
+    val staffName: String,
 )

@@ -3,9 +3,7 @@
 package com.crm.edu.ui.compose.screens.attendance
 
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -132,7 +130,7 @@ private fun getAttendanceOptionItems(): List<AttendanceOptionItem> {
         ),
         AttendanceOptionItem(
             name = "My Attendance",
-            route = Screen.Calendar.route,
+            route = Screen.CalendarV2.route,
             drawableRes = R.drawable.ic_attendance_multi_color,
             color = Color.Blue
         ),

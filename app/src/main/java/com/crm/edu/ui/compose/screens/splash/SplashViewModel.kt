@@ -1,5 +1,6 @@
 package com.crm.edu.ui.compose.screens.splash
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,7 +26,9 @@ class SplashViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _isUserLoggedIn.value = userPreferences.isUserLoggedIn() == true
+            val isUserLoggedIn = userPreferences.isUserLoggedIn()
+            Log.d("EduLogs", "User Logged in :  $isUserLoggedIn")
+            _isUserLoggedIn.value = isUserLoggedIn
         }
     }
 

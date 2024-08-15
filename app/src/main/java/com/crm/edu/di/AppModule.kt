@@ -11,6 +11,7 @@ import com.crm.edu.data.leaves.remote.LeavesApi
 import com.crm.edu.data.login.local.pref.UserPreferences
 import com.crm.edu.data.login.remote.api.LoginApi
 import com.crm.edu.data.markAttendance.remote.MarkAttendanceApi
+import com.crm.edu.data.myteam.local.MyTeamDao
 import com.crm.edu.data.myteam.remote.MyTeamApi
 import com.crm.edu.utils.Constants
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -49,7 +50,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAuthInterceptor(): AuthInterceptor {
-        return AuthInterceptor("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpbl90b2tlbiI6IjFmYjZiODE4MmQ0NDgwZWRkODc0OGRkMjA1YTM3ZGQwIiwiaWF0IjoxNzIwOTYwNDQ0LCJleHAiOjE3MjYxNDQ0NDR9._u40fM2tsSLWNMYpd65FmduhF-PXJqfLevDrPKXZ9fM")
+        return AuthInterceptor("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpbl90b2tlbiI6ImY0YmRmODlmMWI5NmI5NWFlMjRlMmQ4YWVhODkwZTdjIiwiaWF0IjoxNzIzNjkyMjE3LCJleHAiOjE3Mjg4NzYyMTd9.Lr1l2IjqRMXG5fEHVew4dY-M6mft01V7PGz_d_Yc0jM")
     }
 
     @Provides
@@ -112,5 +113,9 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideNewsDao(db: AppDatabase): HolidayDao = db.holidayDao()
+    fun provideHolidayDayDao(db: AppDatabase): HolidayDao = db.holidayDao()
+
+    @Provides
+    @Singleton
+    fun provideMyTeamNewsDao(db: AppDatabase): MyTeamDao = db.myTeamDao()
 }

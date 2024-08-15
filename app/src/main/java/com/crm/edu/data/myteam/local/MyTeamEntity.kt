@@ -3,29 +3,32 @@ package com.crm.edu.data.myteam.local
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.crm.edu.data.holiday.HolidayData
+import com.crm.edu.data.myteam.StaffAttendanceData
 
-@Entity(tableName = "holiday_data")
-data class HolidayEntity(
+@Entity(tableName = "staff_attendance_data")
+data class StaffAttendanceEntity(
     @ColumnInfo(defaultValue = "")
-    val holidayName: String,
+    val time: String,
+    @ColumnInfo(defaultValue = "")
+    val title: String,
+    @ColumnInfo(defaultValue = "")
+    val start: String,
     @ColumnInfo(defaultValue = "")
     val colour: String,
     @ColumnInfo(defaultValue = "")
-    val holidayDate: String,
+    val designation: String,
     @ColumnInfo(defaultValue = "")
-    val weekDay: String,
-    @ColumnInfo(defaultValue = "")
-    val holidayType: String,
+    val staff_name: String,
 ) {
     @PrimaryKey(autoGenerate = true)
     var autoId: Long = 0
 }
 
-fun HolidayEntity.asExternalModel() = HolidayData(
-    holidayName = holidayName,
+fun StaffAttendanceEntity.asExternalModel() = StaffAttendanceData(
+    time = time,
+    title = title,
+    start = start,
     colour = colour,
-    holidayDate = holidayDate,
-    weekDay = weekDay,
-    holidayType = holidayType
+    designation = designation,
+    staffName = staff_name
 )

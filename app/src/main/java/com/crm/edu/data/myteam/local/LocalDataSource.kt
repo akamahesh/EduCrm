@@ -6,7 +6,8 @@ import javax.inject.Inject
 class LocalDataSource @Inject constructor(
     private val myTeamDao: MyTeamDao
 ) {
-    fun getHolidayEntities(): Flow<List<HolidayEntity>> = myTeamDao.getHolidayEntities()
+    fun getStaffAttendance(): Flow<List<StaffAttendanceEntity>> = myTeamDao.getStaffAttendanceData()
 
-    suspend fun insertHolidayEntities(holidayEntities: List<HolidayEntity>) = myTeamDao.insertOrIgnoreHolidays(holidayEntities)
+    suspend fun insertHolidayEntities(staffAttendanceEntities: List<StaffAttendanceEntity>) =
+        myTeamDao.insertOrIgnoreStaffAttendanceData(staffAttendanceEntities)
 }

@@ -42,7 +42,7 @@ fun LoginScreen(navController: NavHostController) {
     val loginViewModel = hiltViewModel<LoginViewModel>()
     val loginState by loginViewModel.loginState.collectAsState()
 
-    var email by remember { mutableStateOf("sahil.chaudhary@educationvibes.in") }
+    var email by remember { mutableStateOf("kunal.kumar@educationvibes.in") }
     var password by remember { mutableStateOf("123456") }
     var emailError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
