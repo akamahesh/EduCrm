@@ -2,6 +2,7 @@ package com.crm.edu.ui.compose.screens.myteam
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,22 +43,16 @@ import androidx.navigation.NavHostController
 import com.crm.edu.R
 import com.crm.edu.data.myteam.StaffAttendanceData
 
-data class TeamMember(
-    val name: String,
-    val role: String,
-    val checkedIn: Boolean,
-    val time: String
-)
-
 
 @Composable
 fun MyTeamScreen(
     navController: NavHostController,
     viewModel: MyTeamScreenViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
+    onTeamMemberSelected: (staffId: String) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
-    MyTeamScreenInternal(navController, viewModel, state, onUpClick)
+    MyTeamScreenInternal(navController, viewModel, state, onUpClick, onTeamMemberSelected)
 }
 
 @Composable
@@ -66,6 +61,7 @@ private fun MyTeamScreenInternal(
     viewModel: MyTeamScreenViewModel,
     state: UIState,
     onUpClick: () -> Unit,
+    onTeamMemberSelected: (staffId: String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -83,7 +79,7 @@ private fun MyTeamScreenInternal(
                         viewModel.fetchStaffAttendance()
                     }
                 } else {
-                    TeamList(padding, members = state.data.staffList)
+                    TeamList(padding, members = state.data.staffList, onTeamMemberSelected)
                 }
             }
 
@@ -116,14 +112,20 @@ private fun ErrorScreen(message: String, showRetry: Boolean = true, onRetry: () 
 
 
 @Composable
-private fun TeamList(padding: PaddingValues = PaddingValues(), members: List<StaffAttendanceData>) {
+private fun TeamList(
+    padding: PaddingValues = PaddingValues(),
+    members: List<StaffAttendanceData>,
+    onTeamMemberSelected: (staffId: String) -> Unit = {}
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
     ) {
         items(members.size) { index ->
-            TeamMemberItem(member = members[index])
+            TeamMemberItem(
+                member = members[index],
+                onItemClick = { onTeamMemberSelected.invoke(it.staffId) })
         }
     }
 }
@@ -143,13 +145,20 @@ private fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
 
 
 @Composable
-private fun TeamMemberItem(member: StaffAttendanceData) {
+private fun TeamMemberItem(
+    member: StaffAttendanceData,
+    onItemClick: (StaffAttendanceData) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .background(Color.White, shape = RoundedCornerShape(8.dp)),
-        verticalAlignment = Alignment.CenterVertically
+            .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .clickable {
+                // Handle item click
+                onItemClick.invoke(member)
+            },
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
             modifier = Modifier
@@ -195,7 +204,8 @@ private fun getTeamList(): List<StaffAttendanceData> {
             start = "2024-08-15",
             colour = "#F4DDE5",
             designation = "Assistant",
-            staffName = "Sakshi Khurana"
+            staffName = "Sakshi Khurana",
+            staffId = "123"
         )
     )
 }

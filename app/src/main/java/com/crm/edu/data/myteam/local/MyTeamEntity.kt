@@ -19,6 +19,8 @@ data class StaffAttendanceEntity(
     val designation: String,
     @ColumnInfo(defaultValue = "")
     val staff_name: String,
+    @ColumnInfo(defaultValue = "")
+    val staff_id: String,
 ) {
     @PrimaryKey(autoGenerate = true)
     var autoId: Long = 0
@@ -30,5 +32,6 @@ fun StaffAttendanceEntity.asExternalModel() = StaffAttendanceData(
     start = start,
     colour = colour,
     designation = designation,
-    staffName = staff_name
+    staffName = staff_name,
+    staffId = staff_id
 )
