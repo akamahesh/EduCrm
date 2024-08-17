@@ -18,6 +18,6 @@ data class StaffDTO(
     @SerialName("colour") val colour: String,
     @SerialName("designation") val designation: String,
     @SerialName("staff_name") val staffName: String,
-    @SerialName("staff_id") val staffId: String = "",
+    @SerialName("staffid") val staffId: String ,
 )
 

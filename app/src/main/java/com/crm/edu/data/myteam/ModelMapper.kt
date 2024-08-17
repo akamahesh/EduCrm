@@ -10,5 +10,5 @@ fun StaffDTO.asEntity() = StaffAttendanceEntity(
     colour = colour,
     designation = designation,
     staff_name = staffName,
-    staff_id = staffId
+    staffid = staffId
 )

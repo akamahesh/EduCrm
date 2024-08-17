@@ -3,7 +3,7 @@ package com.crm.edu.data.leaves
 data class LeaveData(
     val id: String,
     val staffId: String,
-    val staffName: String = "StaffName",
+    val staffName: String,
     val leaveCount: String,
     val leaveType: String,
     val createdBy: String,
@@ -17,4 +17,11 @@ data class LeaveData(
     val isAbsent: String,
     val attendanceStatus: String,
     val reason: String,
+    val dates: String,
+    val isHalfDay: String,
+    val halfDayType: String,
+    val halfDayTypeName: String,
+    val toDate: String,
+    val fromDate: String,
+    val leaveTypeName: String,
 )

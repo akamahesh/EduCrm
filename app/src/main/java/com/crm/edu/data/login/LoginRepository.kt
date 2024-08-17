@@ -62,7 +62,7 @@ class LoginRepository @Inject constructor(
             UserPreferencesKeys.LONGITUDE.name to loginData.userData?.longitude.toString(),
             UserPreferencesKeys.DESIGNATION.name to loginData.userData?.designation.toString(),
             UserPreferencesKeys.CALLS_UPDATES.name to loginData.userData?.callsUpdates.toString(),
-            UserPreferencesKeys.DEPARTMENT.name to loginData.userData?.department.toString(),
+            UserPreferencesKeys.DEPARTMENT_ID.name to loginData.userData?.departmentId.toString(),
             // other thn user data
             UserPreferencesKeys.LOGIN_TOKEN.name to loginData.loginToken.toString(),
             UserPreferencesKeys.JWT_TOKEN.name to loginData.jwtToken.toString(),
