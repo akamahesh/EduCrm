@@ -34,20 +34,20 @@ class UserPreferences(context: Context) {
             UserPreferencesKeys.LONGITUDE.name to preferences[UserPreferencesKeys.LONGITUDE],
             UserPreferencesKeys.DESIGNATION.name to preferences[UserPreferencesKeys.DESIGNATION],
             UserPreferencesKeys.CALLS_UPDATES.name to preferences[UserPreferencesKeys.CALLS_UPDATES],
-            UserPreferencesKeys.DEPARTMENT.name to preferences[UserPreferencesKeys.DEPARTMENT]
+            UserPreferencesKeys.DEPARTMENT_ID.name to preferences[UserPreferencesKeys.DEPARTMENT_ID]
         )
     }
 
     // Function to get the department ID
     val departmentId: Flow<String?> = dataStore.data.map { preferences ->
-        preferences[UserPreferencesKeys.DEPARTMENT]
+        preferences[UserPreferencesKeys.DEPARTMENT_ID]
     }
 
     // Suspend function to get the department ID directly
     suspend fun getDepartmentId(): String? {
         return dataStore.data
             .map { preferences ->
-                preferences[UserPreferencesKeys.DEPARTMENT]
+                preferences[UserPreferencesKeys.DEPARTMENT_ID]
             }
             .first()
     }
@@ -123,7 +123,7 @@ class UserPreferences(context: Context) {
                     UserPreferencesKeys.CALLS_UPDATES.name -> preferences[UserPreferencesKeys.CALLS_UPDATES] =
                         value
 
-                    UserPreferencesKeys.DEPARTMENT.name -> preferences[UserPreferencesKeys.DEPARTMENT] =
+                    UserPreferencesKeys.DEPARTMENT_ID.name -> preferences[UserPreferencesKeys.DEPARTMENT_ID] =
                         value
 
                     UserPreferencesKeys.LOGIN_TOKEN.name -> preferences[UserPreferencesKeys.LOGIN_TOKEN] =

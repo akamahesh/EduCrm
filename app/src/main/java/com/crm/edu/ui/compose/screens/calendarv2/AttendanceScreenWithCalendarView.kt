@@ -1,5 +1,6 @@
 package com.crm.edu.ui.compose.screens.calendarv2
 
+import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

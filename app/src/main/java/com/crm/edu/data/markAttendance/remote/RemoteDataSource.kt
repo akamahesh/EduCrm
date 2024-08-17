@@ -24,7 +24,7 @@ class RemoteDataSource @Inject constructor(
             "reporting_id" to reportingId,
             "image" to "NA"
         )
-        Log.e("EduLog", "request body : $requestBody")
+        Log.e("EduLog", "markCheckInOut request body : $requestBody")
         return markAttendanceApi.markCheckInOut(requestBody)
     }
 }

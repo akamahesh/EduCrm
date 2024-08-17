@@ -210,9 +210,12 @@ fun LeaveRequestCard(leaveData: LeaveData) {
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "From: ${leaveData.createdBy}")
-        Text(text = "To: ${leaveData.createdBy}")
-        Text(text = "Leave Type: ${getLeaveType(leaveData.leaveType)}")
+        Text(text = "From: ${leaveData.fromDate}")
+        Text(text = "To: ${leaveData.toDate}")
+        val leaveTypeName =
+            leaveData.leaveTypeName + if (leaveData.isHalfDay == "1") ", ${leaveData.halfDayTypeName}" else ""
+
+        Text(text = "Leave Type: $leaveTypeName")
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Reason:", fontWeight = FontWeight.Bold)
         Text(text = leaveData.reason)

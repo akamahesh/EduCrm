@@ -22,7 +22,7 @@ object UserPreferencesKeys {
     val LONGITUDE = stringPreferencesKey("longitude")
     val DESIGNATION = stringPreferencesKey("designation")
     val CALLS_UPDATES = stringPreferencesKey("calls_updates")
-    val DEPARTMENT = stringPreferencesKey("department")
+    val DEPARTMENT_ID = stringPreferencesKey("department_id")
     val LOGIN_TOKEN = stringPreferencesKey("login_token")
     val JWT_TOKEN = stringPreferencesKey("jwt_token")
 }

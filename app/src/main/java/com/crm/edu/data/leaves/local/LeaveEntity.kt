@@ -12,7 +12,7 @@ data class LeaveEntity(
     @ColumnInfo(defaultValue = "")
     val staffId: String,
     @ColumnInfo(defaultValue = "")
-    val staffName: String = "StaffName",
+    val staffName: String,
     @ColumnInfo(defaultValue = "")
     val leaveCount: String,
     @ColumnInfo(defaultValue = "")
@@ -39,6 +39,20 @@ data class LeaveEntity(
     val attendanceStatus: String,
     @ColumnInfo(defaultValue = "")
     val reason: String,
+    @ColumnInfo(defaultValue = "")
+    val dates: String,
+    @ColumnInfo(defaultValue = "")
+    val isHalfDay: String,
+    @ColumnInfo(defaultValue = "")
+    val halfDayType: String,
+    @ColumnInfo(defaultValue = "")
+    val halfDayTypeName: String,
+    @ColumnInfo(defaultValue = "")
+    val toDate: String,
+    @ColumnInfo(defaultValue = "")
+    val fromDate: String,
+    @ColumnInfo(defaultValue = "")
+    val leaveTypeName: String,
 ) {
     @PrimaryKey(autoGenerate = true)
     var autoId: Long = 0
@@ -61,4 +75,11 @@ fun LeaveEntity.asExternalModel() = LeaveData(
     isAbsent = isAbsent,
     attendanceStatus = attendanceStatus,
     reason = reason,
+    dates = dates,
+    isHalfDay = isHalfDay,
+    halfDayType = halfDayType,
+    halfDayTypeName = halfDayTypeName,
+    toDate = toDate,
+    fromDate = fromDate,
+    leaveTypeName = leaveTypeName
 )

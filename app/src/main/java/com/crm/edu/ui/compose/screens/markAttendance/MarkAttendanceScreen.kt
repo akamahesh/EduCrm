@@ -80,7 +80,6 @@ fun MarkAttendanceScreen(
                 "${(markAttendanceState as EResult.Success<MarkAttendanceData>).data}",
                 Toast.LENGTH_SHORT
             ).show()
-
         }
 
         is EResult.Loading -> {
@@ -100,7 +99,7 @@ fun MarkAttendanceScreen(
     MarkAttendanceScreenInternal(
         checkAttendanceState,
         onOptionClick = {
-            Log.d("EduLogs", "Edu Logs $it")
+            Log.d("EduLogs", "checkInOut  $it location: $location")
             viewModel.checkInOut(it, location?.latitude.toString(), location?.longitude.toString())
         },
         onUpClick = onUpClick
@@ -124,7 +123,7 @@ private fun MarkAttendanceScreenInternal(
     ) { innerPadding ->
         when (state) {
             is EResult.Loading -> {
-                CircularProgressIndicator()
+                LoadingLayout()
             }
 
             is EResult.Success -> {
@@ -140,6 +139,20 @@ private fun MarkAttendanceScreenInternal(
 
             else -> {}
         }
+    }
+}
+
+
+@Composable
+private fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues) // Use padding values from Scaffold to avoid overlap
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }
 

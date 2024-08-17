@@ -20,4 +20,11 @@ fun LeaveDetailDTO.asEntity() = LeaveEntity(
     isAbsent = isAbsent,
     attendanceStatus = attendanceStatus,
     reason = reason,
+    dates = dates,
+    isHalfDay = isHalfDay,
+    halfDayType = halfDayType,
+    halfDayTypeName = halfDayTypeName,
+    toDate = toDate,
+    fromDate = fromDate,
+    leaveTypeName = leaveTypeName,
 )

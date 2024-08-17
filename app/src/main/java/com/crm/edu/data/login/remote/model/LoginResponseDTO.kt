@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginResponseDTO(
-    @SerialName("user_data") var userData: UserData? = UserData(),
+    @SerialName("user_data") var userData: UserData? = null,
     @SerialName("status") var status: Int? = null,
     @SerialName("message") var message: String? = null,
     @SerialName("login_token") var loginToken: String? = null,
@@ -34,7 +34,7 @@ data class UserData(
     @SerialName("longitude") var longitude: String? = null,
     @SerialName("designation") var designation: String? = null,
     @SerialName("calls_updates") var callsUpdates: String? = null,
-    @SerialName("department") var department: String? = null
+    @SerialName("department_id") var departmentId: String? = null
 
 )
 
