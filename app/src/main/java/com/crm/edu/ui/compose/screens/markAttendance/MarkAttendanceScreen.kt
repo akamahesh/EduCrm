@@ -3,6 +3,7 @@
 package com.crm.edu.ui.compose.screens.markAttendance
 
 
+import android.location.Location
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -58,7 +59,12 @@ import com.crm.edu.R
 import com.crm.edu.core.EResult
 import com.crm.edu.data.markAttendance.CheckAttendanceData
 import com.crm.edu.data.markAttendance.remote.MarkAttendanceData
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MarkAttendanceScreen(
     navController: NavHostController,
@@ -66,74 +72,136 @@ fun MarkAttendanceScreen(
     onOptionClick: (String) -> Unit = {},
     onUpClick: () -> Unit = {},
 ) {
-    val context = LocalContext.current
-
     val checkAttendanceState by viewModel.state.collectAsState()
     val markAttendanceState by viewModel.markAttendanceState.collectAsState()
     val location by viewModel.locationData.collectAsState()
 
+    val locationPermissionState =
+        rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
-    when (markAttendanceState) {
-        is EResult.Success -> {
-            Toast.makeText(
-                context,
-                "${(markAttendanceState as EResult.Success<MarkAttendanceData>).data}",
-                Toast.LENGTH_SHORT
-            ).show()
+    if (locationPermissionState.status.isGranted) {
+        //request location before enabling buttons
+        if (location == null) {
+            Text(text = "Fetching your location...")
+            viewModel.fetchLocation()
+        } else {
+            MarkAttendanceScreenInternal(
+                checkAttendanceState,
+                location,
+                markAttendanceState,
+                onCheckInCheckout = {
+                    Log.d("EduLogs", "checkInOut  $it location: $location")
+                    viewModel.checkInOut(
+                        it,
+                        location?.latitude.toString(),
+                        location?.longitude.toString()
+                    )
+                },
+                onUpClick = onUpClick
+            ) {
+                viewModel.retry()
+            }
         }
-
-        is EResult.Loading -> {
-            CircularProgressIndicator()
-        }
-
-        is EResult.Error -> {
-            Toast.makeText(
-                context,
-                "${(markAttendanceState as EResult.Error).exception}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        else -> {}
-    }
-    MarkAttendanceScreenInternal(
-        checkAttendanceState,
-        onOptionClick = {
-            Log.d("EduLogs", "checkInOut  $it location: $location")
-            viewModel.checkInOut(it, location?.latitude.toString(), location?.longitude.toString())
-        },
-        onUpClick = onUpClick
-    ) {
-        viewModel.retry()
+    } else {
+        PermissionLayout(locationPermissionState, onUpClick)
     }
 }
 
-
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-private fun MarkAttendanceScreenInternal(
-    state: EResult<CheckAttendanceData>,
-    onOptionClick: (String) -> Unit = {},
+private fun PermissionLayout(
+    locationPermissionState: PermissionState,
     onUpClick: () -> Unit = {},
-    onRetry: () -> Unit
 ) {
     Scaffold(
         topBar = {
             AttendanceTopBar(onUpClick = onUpClick)
         },
     ) { innerPadding ->
-        when (state) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Location permission is required to check in/out.",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 18.sp,
+                ),
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
+                Text(
+                    text = "Grant Permission"
+                )
+            }
+        }
+    }
+
+}
+
+
+@Composable
+private fun MarkAttendanceScreenInternal(
+    checkAttendanceState: EResult<CheckAttendanceData>,
+    location: Location?,
+    markAttendanceState: EResult<MarkAttendanceData>?,
+    onCheckInCheckout: (String) -> Unit = {},
+    onUpClick: () -> Unit = {},
+    onRetry: () -> Unit
+) {
+    val context = LocalContext.current
+    Scaffold(
+        topBar = {
+            AttendanceTopBar(onUpClick = onUpClick)
+        },
+    ) { innerPadding ->
+
+        when (markAttendanceState) {
+            is EResult.Success -> {
+                Toast.makeText(
+                    context,
+                    markAttendanceState.data.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+                if (markAttendanceState.data.status == 1) {
+                    onUpClick.invoke()
+                }
+            }
+
+            is EResult.Loading -> {
+                LoadingLayout()
+            }
+
+            is EResult.Error -> {
+                Toast.makeText(
+                    context,
+                    "${markAttendanceState.exception}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            else -> {}
+        }
+
+        when (checkAttendanceState) {
             is EResult.Loading -> {
                 LoadingLayout()
             }
 
             is EResult.Success -> {
-                SuccessLayout(innerPadding, state.data) {
-                    onOptionClick(it)
+                SuccessLayout(innerPadding, checkAttendanceState.data) {
+                    onCheckInCheckout(it)
                 }
             }
 
             is EResult.Error -> {
-                val exception = state.exception
+                val exception = checkAttendanceState.exception
                 ErrorLayout(exception.message ?: "An error occurred", onRetry = { onRetry() })
             }
 

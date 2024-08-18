@@ -124,9 +124,9 @@ fun BottomNavigationBar(navController: NavHostController) {
                 }
             }
             composable(route = Screen.MarkAttendance.route) {
-                MarkAttendanceScreen(navController) {
+                MarkAttendanceScreen(navController, onUpClick = {
                     navController.navigateUp()
-                }
+                })
             }
             composable(route = Screen.MyTeam.route) {
                 MyTeamScreen(
