@@ -29,12 +29,20 @@ class LeaveRequestRepository @Inject constructor(private val remoteDataSource: R
 
     fun applyLeaveRequest(
         leaveType: String,
-        leaveCount: String,
-        applyDates: String,
+        fromDate: String,
+        toDate: String,
+        isHalfDay: Int,
+        halfDayType: Int,
     ): Flow<EResult<LeaveRequestResponseDTO>> = flow {
         emit(EResult.Loading)
         try {
-            val remoteData = remoteDataSource.applyLeaveRequest(leaveType, leaveCount, applyDates)
+            val remoteData = remoteDataSource.applyLeaveRequest(
+                leaveType,
+                fromDate,
+                toDate,
+                isHalfDay,
+                halfDayType
+            )
             emit(EResult.Success(remoteData))
         } catch (ex: Exception) {
             emit(EResult.Error(ex))

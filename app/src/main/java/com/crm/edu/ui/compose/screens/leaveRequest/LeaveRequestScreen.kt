@@ -148,7 +148,6 @@ private fun SuccessLayout(
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            val selectedDate = "$dayOfMonth/${month + 1}/$year"
             val formattedMonth = String.format("%02d", month + 1)
             val formattedDay = String.format("%02d", dayOfMonth)
 
@@ -224,7 +223,9 @@ private fun SuccessLayout(
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = leaveTypeExpanded)
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
             )
             ExposedDropdownMenu(
                 expanded = leaveTypeExpanded,
@@ -260,14 +261,14 @@ private fun SuccessLayout(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     RadioButton(
-                        selected = leaveRequestDetail.halfDayPeriod == "First Half",
-                        onClick = { viewModel.onHalfDayPeriodChange("First Half") }
+                        selected = leaveRequestDetail.halfDayPeriod == 1,
+                        onClick = { viewModel.onHalfDayPeriodChange(1) }
                     )
                     Text("First Half")
 
                     RadioButton(
-                        selected = leaveRequestDetail.halfDayPeriod == "Second Half",
-                        onClick = { viewModel.onHalfDayPeriodChange("Second Half") }
+                        selected = leaveRequestDetail.halfDayPeriod == 2,
+                        onClick = { viewModel.onHalfDayPeriodChange(2) }
                     )
                     Text("Second Half")
                 }
