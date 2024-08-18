@@ -1,7 +1,11 @@
 package com.crm.edu.ui.compose.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -82,7 +86,13 @@ fun BottomNavigationBar(navController: NavHostController) {
                 }
             }
         }) { paddingValues ->
-        NavHost(navController = navController, startDestination = Screen.CallManager.route) {
+        NavHost(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(WindowInsets.navigationBars.asPaddingValues()),
+            navController = navController,
+            startDestination = Screen.CallManager.route
+        ) {
             composable(route = Screen.CallManager.route) {
                 CallManagerScreen(navController)
             }

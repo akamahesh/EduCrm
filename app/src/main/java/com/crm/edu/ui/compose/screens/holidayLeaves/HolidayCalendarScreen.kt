@@ -142,26 +142,21 @@ private fun HolidayRow(holiday: HolidayData) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val holidayDate = "${holiday.weekDay} \n${holiday.holidayDate}"
         Text(
-            text = holiday.weekDay,
+            text = holidayDate,
+            fontSize = 12.sp,
             modifier = Modifier.weight(1f)
         )
         Text(
             text = holiday.holidayName,
+            fontSize = 12.sp,
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = when (holiday.holidayType) {
-                LeaveType.COMPANY_HOLIDAY.name -> "CH"
-                LeaveType.FLOATING_HOLIDAY.name -> "FH"
-                else -> "NA"
-            },
-            color = when (holiday.holidayType) {
-                LeaveType.COMPANY_HOLIDAY.name -> Color.Blue
-                LeaveType.FLOATING_HOLIDAY.name -> Color.Red
-                else -> Color.Black
-            },
-            fontWeight = FontWeight.Bold,
+            text = holiday.holidayType,
+            color = holiday.colour.toColorOrDefault(),
+            fontSize = 10.sp,
             modifier = Modifier.weight(0.5f)
         )
     }
@@ -181,19 +176,19 @@ private fun HeaderRow() {
             text = "Day",
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(1f),
-            fontSize = 16.sp
+            fontSize = 14.sp
         )
         Text(
             text = "Occasion",
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(1f),
-            fontSize = 16.sp
+            fontSize = 14.sp
         )
         Text(
             text = "Leave Type",
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(0.5f),
-            fontSize = 16.sp
+            fontSize = 14.sp
         )
     }
 }
@@ -207,10 +202,8 @@ private fun SuccessHolidayLayout(padding: PaddingValues, holidays: List<HolidayD
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
         ) {
             HeaderRow()
-            Spacer(modifier = Modifier.height(8.dp))
             LazyColumn {
                 items(holidays) { holiday ->
                     HolidayRow(holiday)
@@ -218,7 +211,6 @@ private fun SuccessHolidayLayout(padding: PaddingValues, holidays: List<HolidayD
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Legend()
         }
     }
 }
@@ -264,7 +256,15 @@ private fun HolidayTopBar(
     )
 }
 
-
-private enum class LeaveType(value: String) {
-    COMPANY_HOLIDAY("as"), FLOATING_HOLIDAY("asdf")
+fun String.toColorOrDefault(defaultColor: Color = Color.Black): Color {
+    return try {
+        if (this.isNotEmpty()) {
+            Color(android.graphics.Color.parseColor(this))
+        } else {
+            defaultColor
+        }
+    } catch (e: IllegalArgumentException) {
+        // Return the default color if the string is invalid
+        defaultColor
+    }
 }
