@@ -99,7 +99,7 @@ class LeaveRequestViewModel @Inject constructor(
         }
     }
 
-    fun onHalfDayPeriodChange(period: String) {
+    fun onHalfDayPeriodChange(period: Int) {
         if (uiState.value is UIState.Success) {
             val currentState = (uiState.value as UIState.Success).data
             val updatedState = currentState.copy(halfDayPeriod = period)
@@ -122,8 +122,14 @@ class LeaveRequestViewModel @Inject constructor(
             val leaveTypeID = selectedLeaveType?.id.toString()
             val fromDate = (uiState.value as UIState.Success).data.fromDate
             val toDate = (uiState.value as UIState.Success).data.toDate
+            val isHalfDay: Int = if ((uiState.value as UIState.Success).data.halfDay) 1 else 0
+            val halfDayType: Int = ((uiState.value as UIState.Success).data.halfDayPeriod)
             val leaveCount = getDayCount(fromDate, toDate)
-            repository.applyLeaveRequest(leaveTypeID, leaveCount.toString(), fromDate)
+            Log.d(
+                "EduLogs",
+                "applyLeave: $leaveTypeID, $leaveCount, $fromDate, $toDate, $isHalfDay, $halfDayType"
+            )
+            repository.applyLeaveRequest(leaveTypeID, fromDate, toDate, isHalfDay, halfDayType)
                 .collect { result ->
                     Log.d("EduLogs", "applyLeave: $result")
                     when (result) {
@@ -182,6 +188,6 @@ data class LeaveRequestState(
     val leaveTypes: List<LeaveType> = emptyList(),
     val selectedLeaveType: LeaveType? = null,
     val halfDay: Boolean = false,
-    val halfDayPeriod: String = "First Half",
+    val halfDayPeriod: Int = 1,
     val reason: String = ""
 )

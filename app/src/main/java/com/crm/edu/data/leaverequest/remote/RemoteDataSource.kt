@@ -8,13 +8,17 @@ class RemoteDataSource @Inject constructor(private val leaveRequestApi: LeaveReq
 
     suspend fun applyLeaveRequest(
         leaveType: String,
-        leaveCount: String,
-        applyDates: String
+        fromDate: String,
+        toDate: String,
+        isHalfDay: Int,
+        halfDayType: Int,
     ): LeaveRequestResponseDTO {
         val requestBody = mapOf<String, String?>(
             "leave_type" to leaveType,
-            "leave_count" to leaveCount,
-            "apply_dates" to applyDates
+            "from_date" to fromDate,
+            "to_date" to toDate,
+            "is_half_day" to isHalfDay.toString(),
+            "halfday_type" to halfDayType.toString()
         )
         return leaveRequestApi.leaveRequest(requestBody)
     }
