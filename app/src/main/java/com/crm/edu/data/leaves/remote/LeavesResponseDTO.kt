@@ -31,9 +31,10 @@ data class LeaveDetailDTO(
     @SerialName("dates") val dates: String,
     @SerialName("is_half_day") val isHalfDay: String,
     @SerialName("halfday_type") val halfDayType: String,
-    @SerialName("halfday_type_name") val halfDayTypeName: String,
     @SerialName("to_date") val toDate: String,
     @SerialName("from_date") val fromDate: String,
     @SerialName("leave_type_name") val leaveTypeName: String,
-
+    @SerialName("halfday_type_name") val halfDayTypeName: String,
+    @SerialName("approval_status_text") val approvalStatusText: String,
+    @SerialName("approval_status_color") val approvalStatusColor: String,
 )

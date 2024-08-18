@@ -23,8 +23,10 @@ fun LeaveDetailDTO.asEntity() = LeaveEntity(
     dates = dates,
     isHalfDay = isHalfDay,
     halfDayType = halfDayType,
-    halfDayTypeName = halfDayTypeName,
     toDate = toDate,
     fromDate = fromDate,
     leaveTypeName = leaveTypeName,
+    halfDayTypeName = halfDayTypeName,
+    approvalStatusText = approvalStatusText,
+    approvalStatusColor = approvalStatusColor
 )
