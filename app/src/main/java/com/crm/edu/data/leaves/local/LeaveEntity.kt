@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.crm.edu.data.leaves.LeaveData
+import kotlinx.serialization.SerialName
 
 @Entity(tableName = "leaves_data")
 data class LeaveEntity(
@@ -46,13 +47,17 @@ data class LeaveEntity(
     @ColumnInfo(defaultValue = "")
     val halfDayType: String,
     @ColumnInfo(defaultValue = "")
-    val halfDayTypeName: String,
-    @ColumnInfo(defaultValue = "")
     val toDate: String,
     @ColumnInfo(defaultValue = "")
     val fromDate: String,
     @ColumnInfo(defaultValue = "")
     val leaveTypeName: String,
+    @ColumnInfo(defaultValue = "")
+    val halfDayTypeName: String,
+    @ColumnInfo(defaultValue = "")
+    val approvalStatusText: String,
+    @ColumnInfo(defaultValue = "")
+    val approvalStatusColor: String,
 ) {
     @PrimaryKey(autoGenerate = true)
     var autoId: Long = 0
@@ -78,8 +83,10 @@ fun LeaveEntity.asExternalModel() = LeaveData(
     dates = dates,
     isHalfDay = isHalfDay,
     halfDayType = halfDayType,
-    halfDayTypeName = halfDayTypeName,
     toDate = toDate,
     fromDate = fromDate,
-    leaveTypeName = leaveTypeName
+    leaveTypeName = leaveTypeName,
+    halfDayTypeName = halfDayTypeName,
+    approvalStatusText = approvalStatusText,
+    approvalStatusColor = approvalStatusColor
 )

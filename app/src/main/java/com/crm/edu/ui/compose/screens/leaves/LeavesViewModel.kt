@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crm.edu.core.EResult
+import com.crm.edu.data.leaves.ApproveLeaveData
 import com.crm.edu.data.leaves.LeaveData
 import com.crm.edu.data.leaves.LeaveRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,9 @@ class LeavesViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
     internal val uiState: StateFlow<UIState> get() = _uiState
 
+    private val _leaveApprovalState =
+        MutableStateFlow<EResult<ApproveLeaveData>?>(null)
+    val leaveApprovalState: StateFlow<EResult<ApproveLeaveData>?> get() = _leaveApprovalState
 
     init {
         fetchLeaveRequests()
@@ -51,6 +55,15 @@ class LeavesViewModel @Inject constructor(
 
                     else -> {}
                 }
+            }
+        }
+    }
+
+    fun onLeaveApproved(id: String, approvalStatus: String, message: String) {
+        viewModelScope.launch {
+            repository.approveLeave(id, approvalStatus, message).collect { result ->
+                Log.d("EduLogs", "onLeaveApproved: $result")
+                _leaveApprovalState.value = result
             }
         }
     }

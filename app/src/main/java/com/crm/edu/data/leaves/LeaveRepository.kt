@@ -5,6 +5,7 @@ import com.crm.edu.data.leaves.local.LeaveEntity
 import com.crm.edu.data.leaves.local.LocalDataSource
 import com.crm.edu.data.leaves.local.asExternalModel
 import com.crm.edu.data.leaves.remote.RemoteDataSource
+import com.crm.edu.data.leaves.remote.asData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
@@ -28,6 +29,26 @@ class LeaveRepository @Inject constructor(
             }
             localDataSource.insertStaffLeaveData(leaveDataEntities)
             emit(EResult.Success(leaveDataEntities.map(LeaveEntity::asExternalModel)))
+        } catch (ex: Exception) {
+            emit(EResult.Error(ex))
+        }
+    }.onStart {
+        emit(EResult.Loading)
+    }.catch { e ->
+        emit(EResult.Error(e))
+    }
+
+    fun approveLeave(
+        leaveId: String,
+        approvalStatus: String,
+        message: String
+    ): Flow<EResult<ApproveLeaveData>> = flow {
+        emit(EResult.Loading)
+        try {
+            val remoteData =
+                remoteDataSource.approveLeave(leaveId, approvalStatus, message)
+            val attendanceData = remoteData.asData()
+            emit(EResult.Success(attendanceData))
         } catch (ex: Exception) {
             emit(EResult.Error(ex))
         }

@@ -20,8 +20,10 @@ data class LeaveData(
     val dates: String,
     val isHalfDay: String,
     val halfDayType: String,
-    val halfDayTypeName: String,
     val toDate: String,
     val fromDate: String,
     val leaveTypeName: String,
+    val halfDayTypeName: String,
+    val approvalStatusText: String,
+    val approvalStatusColor: String
 )

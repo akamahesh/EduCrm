@@ -1,6 +1,7 @@
 package com.crm.edu.ui.compose.screens.leaves
 
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,7 +50,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.crm.edu.R
+import com.crm.edu.core.EResult
 import com.crm.edu.data.leaves.LeaveData
+import com.crm.edu.ui.compose.screens.holidayLeaves.toColorOrDefault
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,14 +60,49 @@ fun LeavesScreen(
     navController: NavHostController,
     viewModel: LeavesViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
+    onToast: (message: String) -> Unit = {}
 ) {
+    val context: Context = LocalContext.current
     val state by viewModel.uiState.collectAsState()
+    val leaveApprovalState by viewModel.leaveApprovalState.collectAsState()
 
     LeavesScreenInternal(
         state,
-        onUpClick
-    ) {
-        viewModel.fetchLeaveRequests()
+        onUpClick,
+        retry = { viewModel.fetchLeaveRequests() },
+        onApprove = { id, approvalStatus, message ->
+            viewModel.onLeaveApproved(id, approvalStatus, message)
+        },
+        onReject = { id, approvalStatus, message ->
+            viewModel.onLeaveApproved(id, approvalStatus, message)
+        }
+    )
+
+    leaveApprovalState?.let {
+        when (it) {
+            is EResult.Loading -> {
+                LoadingLayout()
+            }
+
+            is EResult.Success -> {
+                LaunchedEffect(Unit) {
+                    onToast.invoke(it.data.message)
+                    if (it.data.status == 1) {
+                        viewModel.fetchLeaveRequests()
+                    }
+                }
+
+            }
+
+            is EResult.Error -> {
+                LaunchedEffect(Unit) {
+                    onToast.invoke(it.exception.message.toString())
+                }
+
+            }
+
+            else -> {}
+        }
     }
 }
 
@@ -71,7 +111,11 @@ private fun LeavesScreenInternal(
     state: UIState,
     onUpClick: () -> Unit,
     retry: () -> Unit,
+    onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
+    onReject: (id: String, approvalStatus: String, message: String) -> Unit
 ) {
+    val context: Context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopBar(onUpClick = onUpClick)
@@ -83,7 +127,7 @@ private fun LeavesScreenInternal(
             }
 
             is UIState.Success -> {
-                SuccessLayout(paddingValues, state.data.leaveDataList)
+                SuccessLayout(paddingValues, state.data.leaveDataList, onApprove, onReject)
             }
 
             is UIState.Error -> {
@@ -98,8 +142,17 @@ private fun LeavesScreenInternal(
 
 
 @Composable
-private fun SuccessLayout(paddingValues: PaddingValues, leaveDataList: List<LeaveData>) {
+private fun SuccessLayout(
+    paddingValues: PaddingValues,
+    leaveDataList: List<LeaveData>,
+    onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
+    onReject: (id: String, approvalStatus: String, message: String) -> Unit
+) {
     var selectedFilter by remember { mutableStateOf("All") }
+    // Apply filtering based on the selected filter
+    val filteredLeaveDataList = remember(selectedFilter, leaveDataList) {
+        filterLeaveData(leaveDataList, selectedFilter)
+    }
     Column(
         modifier = Modifier
             .padding(paddingValues)
@@ -107,7 +160,7 @@ private fun SuccessLayout(paddingValues: PaddingValues, leaveDataList: List<Leav
     ) {
         FilterDropdown(selectedFilter) { selectedFilter = it }
         Spacer(modifier = Modifier.height(16.dp))
-        LeaveRequestList(leaveDataList)
+        LeaveRequestList(filteredLeaveDataList, onApprove, onReject)
     }
 }
 
@@ -139,6 +192,17 @@ private fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
         CircularProgressIndicator(
             modifier = Modifier.align(Alignment.Center)
         )
+    }
+}
+
+fun filterLeaveData(leaveDataList: List<LeaveData>, filter: String): List<LeaveData> {
+    return when (filter) {
+        "All" -> leaveDataList
+        "Approved" -> leaveDataList.filter { it.approvalStatusText == "Approved" }
+        "Pending" -> leaveDataList.filter { it.approvalStatusText == "Pending" }
+        "Rejected" -> leaveDataList.filter { it.approvalStatusText == "Rejected" }
+        "Cancelled" -> leaveDataList.filter { it.approvalStatusText == "Cancelled" }
+        else -> leaveDataList
     }
 }
 
@@ -174,17 +238,25 @@ fun FilterDropdown(selectedFilter: String, onFilterSelected: (String) -> Unit) {
 }
 
 @Composable
-fun LeaveRequestList(leaveRequests: List<LeaveData>) {
+fun LeaveRequestList(
+    leaveRequests: List<LeaveData>,
+    onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
+    onReject: (id: String, approvalStatus: String, message: String) -> Unit
+) {
     LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
         items(leaveRequests.size) { index ->
-            LeaveRequestCard(leaveRequests[index])
+            LeaveRequestCard(leaveRequests[index], onApprove, onReject)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-fun LeaveRequestCard(leaveData: LeaveData) {
+fun LeaveRequestCard(
+    leaveData: LeaveData,
+    onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
+    onReject: (id: String, approvalStatus: String, message: String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,54 +268,44 @@ fun LeaveRequestCard(leaveData: LeaveData) {
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = leaveData.staffName, fontWeight = FontWeight.Bold)
-            if (leaveData.approvalStatus == "1") {
-                Text(text = "Approved", fontWeight = FontWeight.Bold)
-            }
-            val leaveStatus = getLeaveStatus(leaveData.approvalStatus)
+            Text(text = leaveData.staffName, fontWeight = FontWeight.SemiBold)
             Box(
                 modifier = Modifier
-                    .background(leaveStatus.color, shape = RoundedCornerShape(8.dp))
+                    .background(
+                        leaveData.approvalStatusColor.toColorOrDefault(defaultColor = Color.Black),
+                        shape = RoundedCornerShape(8.dp)
+                    )
                     .padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
-                Text(text = leaveStatus.label, color = Color.White)
+                Text(text = leaveData.approvalStatusText, color = Color.White)
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Text(text = "From: ${leaveData.fromDate}")
         Text(text = "To: ${leaveData.toDate}")
         val leaveTypeName =
             leaveData.leaveTypeName + if (leaveData.isHalfDay == "1") ", ${leaveData.halfDayTypeName}" else ""
 
         Text(text = "Leave Type: $leaveTypeName")
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Reason:", fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = "Reason:", fontWeight = FontWeight.SemiBold)
         Text(text = leaveData.reason)
         Spacer(modifier = Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             Button(
-                onClick = { /* Handle Approve */ },
+                onClick = { onApprove(leaveData.id, "1", "Your Leave has been approved !!") },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
                 Text(text = "Approve")
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick = { /* Handle Reject */ },
+                onClick = { onReject(leaveData.id, "2", "Sorry, Your Leave has been Rejected !!") },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
             ) {
                 Text(text = "Reject")
             }
         }
-    }
-}
-
-private fun getLeaveStatus(status: String): LeaveStatus {
-    return when (status) {
-        "1" -> LeaveStatus.Approved
-        "2" -> LeaveStatus.Rejected
-        "3" -> LeaveStatus.Cancelled
-        else -> LeaveStatus.Pending
     }
 }
 
@@ -288,6 +350,14 @@ private fun TopBar(
             }
         },
     )
+}
+
+fun String.toColorOrNull(): Color? {
+    return try {
+        Color(android.graphics.Color.parseColor(this))
+    } catch (e: IllegalArgumentException) {
+        null
+    }
 }
 
 enum class LeaveStatus(val color: Color, val label: String) {

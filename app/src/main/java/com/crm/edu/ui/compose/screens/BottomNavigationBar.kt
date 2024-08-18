@@ -1,6 +1,8 @@
 package com.crm.edu.ui.compose.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -42,6 +45,7 @@ import com.crm.edu.ui.compose.screens.myteam.MyTeamScreen
 fun BottomNavigationBar(navController: NavHostController) {
     //initialize the default selected item
 
+    val context: Context = LocalContext.current
     var selectedItemIndex by remember {
         mutableStateOf(0)
     }
@@ -123,9 +127,12 @@ fun BottomNavigationBar(navController: NavHostController) {
                 })
             }
             composable(route = Screen.Leaves.route) {
-                LeavesScreen(navController){
-                    navController.navigateUp()
-                }
+                LeavesScreen(
+                    navController,
+                    onUpClick = { navController.navigateUp() },
+                    onToast = {
+                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                    })
             }
 
             composable(route = Screen.Calendar.route) {
