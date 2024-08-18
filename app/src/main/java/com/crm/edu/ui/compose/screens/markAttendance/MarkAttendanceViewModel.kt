@@ -10,6 +10,7 @@ import com.crm.edu.core.EResult
 import com.crm.edu.data.markAttendance.CheckAttendanceData
 import com.crm.edu.data.markAttendance.MarkAttendanceRepository
 import com.crm.edu.data.markAttendance.remote.MarkAttendanceData
+import com.crm.edu.utils.getLastKnownLocation
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -34,8 +35,8 @@ class MarkAttendanceViewModel @Inject constructor(
     val state: StateFlow<EResult<CheckAttendanceData>> get() = _state
 
     private val _markAttendanceState =
-        MutableStateFlow<EResult<MarkAttendanceData>>(EResult.Loading)
-    val markAttendanceState: StateFlow<EResult<MarkAttendanceData>> get() = _markAttendanceState
+        MutableStateFlow<EResult<MarkAttendanceData>?>(null)
+    val markAttendanceState: StateFlow<EResult<MarkAttendanceData>?> get() = _markAttendanceState
 
 
     private val fusedLocationClient: FusedLocationProviderClient =
@@ -47,27 +48,14 @@ class MarkAttendanceViewModel @Inject constructor(
 
     init {
         fetchAttendanceDetail()
-        fetchLocation()
+//        fetchLocation()
     }
 
     @SuppressLint("MissingPermission")
     fun fetchLocation() {
-        viewModelScope.launch {
-            val locationRequest = LocationRequest.Builder(
-                Priority.PRIORITY_BALANCED_POWER_ACCURACY,
-                5000L
-            ).build()
-
-            val locationCallback = object : LocationCallback() {
-                override fun onLocationResult(locationResult: LocationResult) {
-                    locationResult.lastLocation?.let { location ->
-                        _locationData.value = location
-                        fusedLocationClient.removeLocationUpdates(this)
-                    }
-                }
-            }
-
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+        getLastKnownLocation(fusedLocationClient){
+            //location
+            setLocationData(it)
         }
     }
 
@@ -89,6 +77,10 @@ class MarkAttendanceViewModel @Inject constructor(
                 _markAttendanceState.value = it
             }
         }
+    }
+
+    fun setLocationData(location: Location?) {
+        _locationData.value = location
     }
 
 
