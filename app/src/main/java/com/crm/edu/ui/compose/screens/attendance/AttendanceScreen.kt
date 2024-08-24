@@ -130,7 +130,7 @@ private fun getAttendanceOptionItems(): List<AttendanceOptionItem> {
         ),
         AttendanceOptionItem(
             name = "My Attendance",
-            route = Screen.CalendarV2.route,
+            route = Screen.Calendar.route,
             drawableRes = R.drawable.ic_attendance_multi_color,
             color = Color.Blue
         ),

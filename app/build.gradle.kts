@@ -60,6 +60,8 @@ android {
 
 dependencies {
     ksp(libs.hilt.android.compiler)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -91,6 +93,7 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.google.accompanist.permissions)
+    implementation(libs.kizitonwose.calendar)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

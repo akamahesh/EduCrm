@@ -8,5 +8,5 @@ interface MyTeamApi {
 
     @FormUrlEncoded
     @POST("staff_attendance_list")
-    suspend fun getTeamAttendance(@FieldMap(encoded = false) data: Map<String, String?>): StaffAttendanceDTO
+    suspend fun getTeamAttendance(@FieldMap(encoded = false) data: Map<String, String>): StaffAttendanceDTO
 }

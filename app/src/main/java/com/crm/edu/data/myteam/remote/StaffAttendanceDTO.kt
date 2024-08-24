@@ -10,6 +10,9 @@ data class StaffAttendanceDTO(
     @SerialName("data") val data: List<StaffDTO> = emptyList(),
 )
 
+/**
+ * {"time":"","title":"Absent","start":"2024-07-01","colour":"#F4DDE5","designation":"","staffid":"153","staff_name":null}
+ */
 @Serializable
 data class StaffDTO(
     @SerialName("time") val time: String,
@@ -17,7 +20,7 @@ data class StaffDTO(
     @SerialName("start") val start: String,
     @SerialName("colour") val colour: String,
     @SerialName("designation") val designation: String,
-    @SerialName("staff_name") val staffName: String,
+    @SerialName("staff_name") val staffName: String? = null,
     @SerialName("staffid") val staffId: String ,
 )
 

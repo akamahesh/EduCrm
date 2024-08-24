@@ -1,5 +1,6 @@
 package com.crm.edu.ui.compose.screens.calendar
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -160,15 +162,46 @@ fun AttendanceSummaryItem(label: String, color: Color, value: String) {
                 .background(color = color)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text = label)
+        Text(text = label, style = MaterialTheme.typography.labelSmall)
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text = value, fontWeight = FontWeight.Bold)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
 
 @Composable
 private fun CalendarHeader(
+    currentMonth: Calendar,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit
+) {
+    Log.d("EduLogs", "currentMonth: $currentMonth")
+    val monthFormat = remember { SimpleDateFormat("MMMM yyyy", Locale.getDefault()) }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onPreviousMonth) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous Month")
+        }
+        Text(
+            text = monthFormat.format(currentMonth.time),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+        IconButton(onClick = onNextMonth) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next Month")
+        }
+    }
+}
+
+@Composable
+private fun CalendarHeaderYearMonth(
     currentMonth: Calendar,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit
@@ -286,7 +319,7 @@ private fun LegendItem(text: String, color: Color) {
                 .background(color = color)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text = text)
+        Text(text = text, style = MaterialTheme.typography.labelSmall)
     }
 }
 

@@ -12,3 +12,13 @@ fun StaffDTO.asEntity() = StaffAttendanceEntity(
     staff_name = staffName,
     staffid = staffId
 )
+
+fun StaffDTO.asData(): StaffAttendanceData = StaffAttendanceData(
+    time = time,
+    title = title,
+    start = start,
+    colour = colour,
+    designation = designation,
+    staffName = staffName,
+    staffId = staffId
+)

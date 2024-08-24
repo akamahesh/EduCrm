@@ -134,6 +134,12 @@ private fun getAllDashboardOptions(): List<DashboardItem> {
             drawableRes = R.drawable.ic_leave_request,
             color = Color.DarkGray
         ),
+//        DashboardItem(
+//            name = "Sample",
+//            route = Screen.Sample.route,
+//            drawableRes = R.drawable.ic_my_team_color,
+//            color = Color.DarkGray
+//        ),
     )
     return dashboardItems
 }

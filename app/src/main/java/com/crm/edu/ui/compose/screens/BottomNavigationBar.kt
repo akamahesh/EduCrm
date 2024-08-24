@@ -31,6 +31,7 @@ import androidx.navigation.navArgument
 import com.crm.edu.ui.compose.Screen
 import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
 import com.crm.edu.ui.compose.screens.calendar.CalendarScreen
+import com.crm.edu.ui.compose.screens.calendar.tryouts.NewCalendarScreen
 import com.crm.edu.ui.compose.screens.calendarv2.AttendanceScreenWithCalendarView
 import com.crm.edu.ui.compose.screens.dashboard.DashboardScreen
 import com.crm.edu.ui.compose.screens.holidayLeaves.HolidayCalendarScreen
@@ -135,8 +136,22 @@ fun BottomNavigationBar(navController: NavHostController) {
                     })
             }
 
-            composable(route = Screen.Calendar.route) {
-                CalendarScreen(navController) {
+            composable(
+                route = Screen.Calendar.route, arguments = listOf(
+                    navArgument("staffId") {
+                        defaultValue = ""
+                        type = NavType.StringType
+                    },
+                    navArgument("staffName") {
+                        defaultValue = ""
+                        type = NavType.StringType
+                    },
+                )
+            ) { navBackStackEntry ->
+                /* Extracting the id from the route */
+                val staffId = navBackStackEntry.arguments?.getString("staffId")
+                val staffName = navBackStackEntry.arguments?.getString("staffName")
+                NewCalendarScreen(staffId, staffName, navController) {
                     navController.navigateUp()
                 }
             }
@@ -149,8 +164,9 @@ fun BottomNavigationBar(navController: NavHostController) {
                 MyTeamScreen(
                     navController = navController,
                     onUpClick = { navController.navigateUp() },
-                    onTeamMemberSelected = {
-                        val route = Screen.CalendarV2.route.replace("{staffId}", it)
+                    onTeamMemberSelected = { staffId, staffName ->
+                        val route = Screen.Calendar.route.replace("{staffId}", staffId)
+                            .replace("{staffName}", staffName)
                         navController.navigate(route = route)
                     })
             }
@@ -165,6 +181,15 @@ fun BottomNavigationBar(navController: NavHostController) {
                 AttendanceScreenWithCalendarView(staffId = staffId, navController = navController) {
                     navController.navigateUp()
                 }
+            }
+
+            composable(route = Screen.Sample.route) {
+                CalendarScreen(navController) {
+                    navController.navigateUp()
+                }
+//                SampleScreen(navController = navController) {
+//                    navController.navigateUp()
+//                }
             }
 
         }
