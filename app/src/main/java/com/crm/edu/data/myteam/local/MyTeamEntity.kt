@@ -18,7 +18,7 @@ data class StaffAttendanceEntity(
     @ColumnInfo(defaultValue = "")
     val designation: String,
     @ColumnInfo(defaultValue = "")
-    val staff_name: String,
+    val staff_name: String?,
     @ColumnInfo(defaultValue = "")
     val staffid: String,
 ) {

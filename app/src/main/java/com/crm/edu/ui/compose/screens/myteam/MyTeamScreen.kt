@@ -49,7 +49,7 @@ fun MyTeamScreen(
     navController: NavHostController,
     viewModel: MyTeamScreenViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
-    onTeamMemberSelected: (staffId: String) -> Unit = {}
+    onTeamMemberSelected: (staffId: String, staffName: String) -> Unit = { s: String, s1: String -> }
 ) {
     val state by viewModel.uiState.collectAsState()
     MyTeamScreenInternal(navController, viewModel, state, onUpClick, onTeamMemberSelected)
@@ -61,7 +61,7 @@ private fun MyTeamScreenInternal(
     viewModel: MyTeamScreenViewModel,
     state: UIState,
     onUpClick: () -> Unit,
-    onTeamMemberSelected: (staffId: String) -> Unit
+    onTeamMemberSelected: (staffId: String, staffName: String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -115,7 +115,7 @@ private fun ErrorScreen(message: String, showRetry: Boolean = true, onRetry: () 
 private fun TeamList(
     padding: PaddingValues = PaddingValues(),
     members: List<StaffAttendanceData>,
-    onTeamMemberSelected: (staffId: String) -> Unit = {}
+    onTeamMemberSelected: (staffId: String, staffName: String) -> Unit = { s: String, s1: String -> }
 ) {
     LazyColumn(
         modifier = Modifier
@@ -125,7 +125,7 @@ private fun TeamList(
         items(members.size) { index ->
             TeamMemberItem(
                 member = members[index],
-                onItemClick = { onTeamMemberSelected.invoke(it.staffId) })
+                onItemClick = { onTeamMemberSelected.invoke(it.staffId, it.staffName.orEmpty()) })
         }
     }
 }
@@ -165,7 +165,7 @@ private fun TeamMemberItem(
                 .weight(1f)
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            Text(text = member.staffName, style = MaterialTheme.typography.bodyLarge)
+            Text(text = member.staffName.toString(), style = MaterialTheme.typography.bodyLarge)
             Text(text = member.designation, style = MaterialTheme.typography.bodySmall)
         }
         Spacer(modifier = Modifier.width(8.dp))

@@ -5,7 +5,9 @@
     <string name="mark_attendance_title">Mark Attendance</string>
     <string name="holiday_title">Holiday</string>
     <string name="my_attendance_title">My Attendance</string>
+    <string name="staff_attendance_title">Attendance</string>
     <string name="leave_request_title">Leave Request</string>
     <string name="my_team_title">My Team</string>
     <string name="leaves_title">Leaves</string>
+    <string name="sample_title">Sample</string>
 </resources>
