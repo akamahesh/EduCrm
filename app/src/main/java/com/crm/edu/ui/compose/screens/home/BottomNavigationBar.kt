@@ -31,6 +31,7 @@ import com.crm.edu.ui.compose.Screen
 import com.crm.edu.ui.compose.screens.CallManagerScreen
 import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
 import com.crm.edu.ui.compose.screens.calendar.CalendarScreen
+import com.crm.edu.ui.compose.screens.calllogs.CallLogsScreen
 import com.crm.edu.ui.compose.screens.calendar.tryouts.NewCalendarScreen
 import com.crm.edu.ui.compose.screens.dashboard.DashboardScreen
 import com.crm.edu.ui.compose.screens.holidayLeaves.HolidayCalendarScreen
@@ -105,7 +106,7 @@ fun BottomNavigationBar(
             startDestination = if (showCallManager) Screen.CallManager.route else Screen.Dashboard.route
         ) {
             composable(route = Screen.CallManager.route) {
-                CallManagerScreen(navController)
+                CallLogsScreen(navController)
             }
 
             composable(route = Screen.Dashboard.route) {

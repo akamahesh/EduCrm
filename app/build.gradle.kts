@@ -82,6 +82,9 @@ dependencies {
     implementation(libs.androidx.datastore.core)
     implementation(libs.play.service.location)
 
+    implementation("io.michaelrocks:libphonenumber-android:8.13.35")
+    implementation("com.google.accompanist:accompanist-permissions:0.23.1")
+
     implementation(libs.hilt.android)
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlin.serialization)

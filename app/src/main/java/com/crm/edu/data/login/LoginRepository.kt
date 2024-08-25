@@ -45,6 +45,22 @@ class LoginRepository @Inject constructor(
         return localDataSource.isUserLoggedIn()
     }
 
+    suspend fun markUserLogout() : Unit{
+        localDataSource.setUserLoggedIn(false)
+    }
+    suspend fun getDepartmentId(): String? {
+        return localDataSource.userPreferences.getDepartmentId()
+    }
+
+    suspend fun getDesignation(): String? {
+        return localDataSource.getDesignation()
+
+    }
+    suspend fun getUserFullName(): String {
+        return localDataSource.getUserFullName()
+
+    }
+
     private fun getUserMap(loginData: LoginResponseDTO): Map<String, String> {
         return mapOf(
             UserPreferencesKeys.STAFF_ID.name to loginData.userData?.staffid.toString(),
