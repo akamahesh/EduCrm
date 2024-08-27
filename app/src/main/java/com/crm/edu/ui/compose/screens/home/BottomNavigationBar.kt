@@ -47,7 +47,8 @@ import com.crm.edu.ui.compose.screens.myteam.MyTeamScreen
 fun BottomNavigationBar(
     navController: NavHostController,
     bottomNavigationItems: List<BottomNavigationItem>,
-    showCallManager: Boolean
+    showCallManager: Boolean,
+    moveToLogin: () -> Unit
 ) {
     //initialize the default selected item
 
@@ -106,7 +107,9 @@ fun BottomNavigationBar(
             startDestination = if (showCallManager) Screen.CallManager.route else Screen.Dashboard.route
         ) {
             composable(route = Screen.CallManager.route) {
-                CallLogsScreen(navController)
+                CallLogsScreen(navController) {
+                    moveToLogin()
+                }
             }
 
             composable(route = Screen.Dashboard.route) {

@@ -23,7 +23,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel = hilt
     val activity = context as? Activity
 
     val state by viewModel.uiState.collectAsState()
-    
+
     // Handle back press to close the app
     BackHandler {
         activity?.finish()
@@ -35,7 +35,13 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel = hilt
         homeNavController,
         bottomNavigationItems(homeBottomData),
         homeBottomData?.showCallManager == true
-    )
+    ) {
+        navController.navigate(Screen.Login.route) {
+            popUpTo(Screen.Splash.route) {
+                inclusive = true
+            }
+        }
+    }
 }
 
 

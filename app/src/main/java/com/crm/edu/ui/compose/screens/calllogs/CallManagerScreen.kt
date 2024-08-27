@@ -75,7 +75,7 @@ import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 
 @Composable
-fun CallLogsScreen(navController: NavHostController) {
+fun CallLogsScreen(navController: NavHostController, moveToLogin: () -> Unit ) {
     val callLogsViewModel = hiltViewModel<CallLogsViewModel>()
     val userNameDesignationState by callLogsViewModel.userNameDesignationState.collectAsState()
     val uiStateData by callLogsViewModel.callLogsUiState.collectAsState()
@@ -83,13 +83,9 @@ fun CallLogsScreen(navController: NavHostController) {
 
     when(uiStateData){
         is CallLogsUIState.moveToLogin -> {
-            navController.navigate(Screen.Splash.route) {
-                popUpTo(Screen.CallManager.route) {
-                    inclusive = true
-                }
-            }
+            //navController.navigateUp()
+            moveToLogin()
         }
-
         null -> Timber.tag("CallLogsScreen").d("CallLogsUIState : null")
     }
 }
