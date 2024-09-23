@@ -248,7 +248,7 @@ fun box(context: Context,selectedValue:String) {
                     "Incoming Calls",
                     receivedCallsStats.count,
                     receivedCallsStats.formattedDuration,
-                    Color.Green
+                    Color(0xFF008f49)
                 )
             }
         }
@@ -271,7 +271,7 @@ fun box(context: Context,selectedValue:String) {
                     "Outgoing Calls",
                     outgoingCallsStats.count,
                     outgoingCallsStats.formattedDuration,
-                    Color.Cyan
+                    Color(0xFF007274)
                 )
             }
             Box(
@@ -330,7 +330,7 @@ fun cardLayout(
                     color = countFontColor,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .padding(4.dp, 0.dp, 0.dp, 0.dp)
+                        .padding(2.dp, 0.dp, 0.dp, 0.dp)
                 )
 
 
