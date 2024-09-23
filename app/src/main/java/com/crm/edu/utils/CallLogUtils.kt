@@ -171,6 +171,12 @@ object CallLogUtils {
                     null
                 }
 
+                val formattedStartDateNew =
+                    DateFormat.format("dd MMM", Date(timeInMS)).toString()
+                val formattedStartTimeNew =
+                    DateFormat.format("h:mm a", Date(timeInMS)).toString()
+
+
                 val callTypeString = when (type) {
                     CallLog.Calls.INCOMING_TYPE -> if (durationNumber != null && durationNumber > 0) "Answered" else "Missed"
                     CallLog.Calls.OUTGOING_TYPE -> if (durationNumber != null && durationNumber > 0) "Answered" else "NotPicked"
@@ -193,7 +199,10 @@ object CallLogUtils {
                         callTypeString,
                         timeInMS,
                         formattedStartDate,
-                        formattedEndDate
+                        formattedEndDate,
+                        formattedStartDateNew,
+                        formattedStartTimeNew
+
                     )
                 )
 
@@ -260,8 +269,6 @@ object CallLogUtils {
         return messages
     }
 
-
-    data class CallStats(var count: Int, var duration: Int, var formattedDuration: String)
 
     private fun getCallStatsByType(callType: Int, context: Context): CallStats {
         // Get the start of the day
@@ -343,10 +350,14 @@ object CallLogUtils {
         return Triple(receivedCallsStats, outgoingCallsStats, missedCallsStats)
     }
 
-    fun getFormattedDuration(duration: Int): String {
+    fun getFormattedDuration(duration: Int): String? {
         val hours = duration / 3600
         val minutes = (duration % 3600) / 60
         val seconds = duration % 60
+
+        if (hours == 0 && minutes == 0 && seconds == 0) {
+            return null
+        }
 
         val formattedDuration = StringBuilder()
 
@@ -458,4 +469,8 @@ data class CallLogInfo(
     val timeInMS: Long,
     val startDateTime: String?,
     val endDateTime: String?,
+    val formattedStartDateNew: String?,
+    val formattedStartTimeNew: String?
 )
+
+data class CallStats(var count: Int, var duration: Int, var formattedDuration: String?)

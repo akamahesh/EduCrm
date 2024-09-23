@@ -6,6 +6,7 @@ import android.provider.CallLog
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,12 +18,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -52,7 +56,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -224,10 +230,11 @@ fun box(context: Context,selectedValue:String) {
                     .padding(horizontal = 5.dp)
             ) {
                 cardLayout(
-                    R.drawable.ic_total_calls,
-                    "Total Phone Calls",
+                    R.drawable.ic_total_call,
+                    "Total Calls",
                     totalNumberOfCalls,
-                    formattedDuration
+                    formattedDuration,
+                    Color.Black
                 )
             }
             Box(
@@ -237,10 +244,11 @@ fun box(context: Context,selectedValue:String) {
                     .padding(horizontal = 5.dp)
             ) {
                 cardLayout(
-                    R.drawable.in_call,
+                    R.drawable.ic_incoming_call,
                     "Incoming Calls",
                     receivedCallsStats.count,
-                    receivedCallsStats.formattedDuration
+                    receivedCallsStats.formattedDuration,
+                    Color.Green
                 )
             }
         }
@@ -259,10 +267,11 @@ fun box(context: Context,selectedValue:String) {
                     .padding(horizontal = 5.dp)
             ) {
                 cardLayout(
-                    R.drawable.out_call,
+                    R.drawable.ic_outgoing_call,
                     "Outgoing Calls",
                     outgoingCallsStats.count,
-                    outgoingCallsStats.formattedDuration
+                    outgoingCallsStats.formattedDuration,
+                    Color.Cyan
                 )
             }
             Box(
@@ -271,7 +280,7 @@ fun box(context: Context,selectedValue:String) {
                     .weight(1f)
                     .padding(horizontal = 5.dp)
             ) {
-                cardLayoutOnlyNumber(R.drawable.missed_call, "Missed Calls", missedCallsStats.count)
+                cardLayout(R.drawable.ic_miss_call, "Missed Calls", missedCallsStats.count, null, Color.Red)
             }
         }
 
@@ -282,125 +291,77 @@ fun box(context: Context,selectedValue:String) {
 
 @Composable
 fun cardLayout(
-    iconId: Int = R.drawable.ic_total_calls,
+    iconId: Int = R.drawable.ic_total_call,
     title: String = "Total Calls",
     numberOfCalls: Int = 10,
-    formattedDuration: String = "",
+    formattedDuration: String?,
+    countFontColor:Color
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White, contentColor = Color.Blue)
     ) {
-        Column() {
-            Row() {
+        Row( modifier = Modifier
+            .heightIn(min = 90.dp)) {
+            Column() {
                 Image(
                     painter =
                     painterResource(id = iconId),
                     contentDescription = stringResource(id = R.string.img_content_login_header),
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(50.dp)
                         .padding(5.dp, 10.dp, 2.dp, 2.dp)
                 )
+            }
+            Column() {
                 Text(
                     text = title,
                     fontSize = 12.sp,
                     color = Color.DarkGray,
-                    modifier = Modifier
-                        .padding(0.dp, 10.dp, 10.dp, 2.dp)
-                )
-            }
 
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Spacer(modifier = Modifier.width(10.dp))
-                Image(
-                    painter =
-                    painterResource(id = R.drawable.ic_call),
-                    contentDescription = stringResource(id = R.string.img_content_login_header),
                     modifier = Modifier
-                        .size(28.dp)
-                        .padding(5.dp, 2.dp, 2.dp, 0.dp)
+                        .padding(0.dp, 10.dp, 0.dp, 0.dp)
                 )
                 Text(
                     text = numberOfCalls.toString(),
-                    fontSize = 14.sp,
-                    color = Color.DarkGray,
+                    fontSize = 16.sp,
+                    color = countFontColor,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .padding(4.dp, 6.dp, 14.dp, 0.dp)
+                        .padding(4.dp, 0.dp, 0.dp, 0.dp)
                 )
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Spacer(modifier = Modifier.width(4.dp))
-                Image(
-                    painter =
-                    painterResource(id = R.drawable.ic_timer),
-                    contentDescription = stringResource(id = R.string.img_content_login_header),
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(2.dp, 0.dp, 0.dp, 0.dp)
-                )
-                Text(
-                    text = formattedDuration,
-                    fontSize = 12.sp,
-                    color = Color.DarkGray,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(0.dp, 2.dp, 14.dp, 2.dp)
-                )
-            }
-        }
-
-    }
-}
-
-@Composable
-fun cardLayoutOnlyNumber(
-    iconId: Int = R.drawable.ic_total_calls,
-    title: String = "Total Calls",
-    numberOfCalls: Int = 10,
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White, contentColor = Color.Blue)
-    ) {
-        Column() {
-            Row() {
-                Image(
-                    painter =
-                    painterResource(id = iconId),
-                    contentDescription = stringResource(id = R.string.img_content_login_header),
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(5.dp, 10.dp, 2.dp, 2.dp)
-                )
-                Text(
-                    text = title,
-                    fontSize = 12.sp,
-                    color = Color.DarkGray,
-                    modifier = Modifier
-                        .padding(0.dp, 10.dp, 14.dp, 2.dp)
-                )
-            }
 
 
-            Spacer(modifier = Modifier.height(30.dp))
-            Row() {
-                Spacer(modifier = Modifier.width(10.dp))
+                formattedDuration?.let {
+                    Row(
+                        modifier = Modifier
+                            .border(width = 1.dp, color = Color.LightGray)
+                            .padding(8.dp, 0.dp, 8.dp, 0.dp)
+                            .widthIn(min = 76.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
 
-                Text(
-                    text = numberOfCalls.toString(),
-                    fontSize = 14.sp,
-                    color = Color.DarkGray,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(4.dp, 6.dp, 10.dp, 10.dp)
-                )
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_hour_glass),
+                            contentDescription = "Call Image",
+                            modifier = Modifier
+                                .size(12.dp)
+                                .padding(0.dp, 0.dp, 0.dp, 0.dp),
+
+                            )
+                        Text(
+                            text = it,
+                            fontSize = 10.sp,
+                            color = Color.DarkGray,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier
+                                .padding(4.dp, 0.dp, 0.dp, 0.dp)
+                        )
+                    }
+                }
+
             }
         }
     }
@@ -526,64 +487,103 @@ fun displayList(context: Context,selectedValue:String) {
             items(contactInfoList) { contactInfo ->
                 val durationNumber = contactInfo.duration?.toLongOrNull()
                 val imageId = when (contactInfo.type) {
-                    CallLog.Calls.INCOMING_TYPE -> if (durationNumber != null && durationNumber > 0) R.drawable.in_call else R.drawable.missed_call
-                    CallLog.Calls.OUTGOING_TYPE -> if (durationNumber != null && durationNumber > 0) R.drawable.out_call else R.drawable.missed_call
-                    CallLog.Calls.MISSED_TYPE -> R.drawable.missed_call
-                    CallLog.Calls.VOICEMAIL_TYPE -> R.drawable.ic_call
-                    CallLog.Calls.REJECTED_TYPE -> R.drawable.missed_call
-                    CallLog.Calls.BLOCKED_TYPE -> R.drawable.missed_call
-                    CallLog.Calls.ANSWERED_EXTERNALLY_TYPE -> R.drawable.ic_call
-                    else -> R.drawable.ic_call
+                    CallLog.Calls.INCOMING_TYPE -> if (durationNumber != null && durationNumber > 0) R.drawable.ic_incoming_call else R.drawable.ic_miss_call
+                    CallLog.Calls.OUTGOING_TYPE -> if (durationNumber != null && durationNumber > 0) R.drawable.ic_outgoing_call else R.drawable.ic_miss_call
+                    CallLog.Calls.MISSED_TYPE -> R.drawable.ic_miss_call
+                    CallLog.Calls.VOICEMAIL_TYPE -> R.drawable.ic_total_call
+                    CallLog.Calls.REJECTED_TYPE -> R.drawable.ic_miss_call
+                    CallLog.Calls.BLOCKED_TYPE -> R.drawable.ic_miss_call
+                    CallLog.Calls.ANSWERED_EXTERNALLY_TYPE -> R.drawable.ic_total_call
+                    else -> R.drawable.ic_total_call
                 }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(1.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter =
-                        painterResource(id = imageId),
-                        contentDescription = stringResource(id = R.string.img_content_login_header),
-                        modifier = Modifier
-                            .size(40.dp)
-                            .padding(0.dp, 0.dp, 12.dp, 0.dp)
-                    )
-                    Text(
-                        text = if (contactInfo.name.isNullOrBlank()) "Unknown" else contactInfo.name,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp
-                    )
-                }
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(1.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = contactInfo.number ?: "Unknown",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                    if (!contactInfo.startDateTime.isNullOrBlank()) {
-                        Text(
-                            text = "    " + contactInfo.startDateTime,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Light
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                HorizontalDivider(
-                    color = Color.Gray,
-                    thickness = 2.dp,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                ContactRow(
+                    image = painterResource(id = imageId), // Assuming you're using drawable resources
+                    name = contactInfo.name?:"Unknown",
+                    phoneNumber = contactInfo.number?:"..",
+                    callDate = contactInfo.formattedStartDateNew?:"-",
+                    callTime = contactInfo.formattedStartTimeNew?:"=",
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ContactRow(
+    image: Painter,
+    name: String,
+    phoneNumber: String,
+    callDate: String,
+    callTime: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        // Contact Image
+        Image(
+            painter =  painterResource(id = R.drawable.ic_user_pic_ph),
+            contentDescription = "Contact Image",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+        )
+
+        Spacer(modifier = Modifier.width(16.dp)) // Space between the image and text
+
+        Column(
+            modifier = Modifier.weight(.55f)
+        ) {
+            // Name and Phone Number
+            Column {
+                Text(
+                    text = name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Image(
+                        painter = image,
+                        contentDescription = "Call Image",
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(0.dp, 6.dp, 4.dp, 0.dp),
+
+                    )
+                    Text(
+                        text = phoneNumber,
+                        color = Color.Gray,
+                        fontSize = 14.sp
+                    )
+
+                }
+
+
+            }
+        }
+            //Spacer(modifier = Modifier.height(8.dp)) // Space between name/phone and date/time
+
+            // Call Date and Time
+
+                Text(
+                    text = callDate,
+                    color = Color.LightGray,
+                    fontSize = 10.sp,
+                    modifier = Modifier.weight(.18f)
+                )
+                Text(
+                    text = callTime,
+                    color = Color.LightGray,
+                    fontSize = 10.sp,
+                    modifier = Modifier.weight(.30f)
+                )
+
+
     }
 }
