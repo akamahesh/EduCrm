@@ -16,8 +16,8 @@ android {
         applicationId = "com.crm.edu"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -94,7 +94,10 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.google.accompanist.permissions)
     implementation(libs.kizitonwose.calendar)
-
+    implementation(libs.landscapist.glide)
+    val composeBom = platform("androidx.compose:compose-bom:2024.09.00")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
