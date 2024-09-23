@@ -49,7 +49,7 @@ fun bottomNavigationItems(): List<BottomNavigationItem> {
             badgeCount = 4
         ),
         BottomNavigationItem(
-            title = "Dashboard",
+            title = "HRMS",
             route = Screen.Dashboard.route,
             selectedIcon = Icons.Filled.Home,
             unselectedIcon = Icons.Outlined.Home,

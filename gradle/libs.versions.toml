@@ -28,6 +28,7 @@ kotlinxSerializationJson = "1.6.3"
 playService = "21.0.1"
 accompanist-permission = "0.34.0"
 kizitonwose-calendar = "2.5.4"
+landscapist = "2.3.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -79,6 +80,8 @@ play-service-location = { group = "com.google.android.gms", name = "play-service
 
 google-accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist-permission" }
 kizitonwose-calendar = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "kizitonwose-calendar" }
+landscapist-glide = { group = "com.github.skydoves", name = "landscapist-glide", version.ref = "landscapist" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

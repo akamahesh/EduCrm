@@ -13,7 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.crm.edu.R
 import com.crm.edu.ui.compose.Screen
+import com.skydoves.landscapist.glide.GlideImage
+import com.skydoves.landscapist.glide.GlideRequestType
 
 @Composable
 fun SplashScreen(
@@ -48,6 +51,12 @@ fun SplashScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Splash Screen", style = MaterialTheme.typography.headlineLarge)
+
+        GlideImage(
+            imageModel = { R.drawable.img_splash_screen }, // Replace with your drawable resource
+            modifier = Modifier.fillMaxSize(),
+            glideRequestType = GlideRequestType.DRAWABLE,
+
+        )
     }
 }
