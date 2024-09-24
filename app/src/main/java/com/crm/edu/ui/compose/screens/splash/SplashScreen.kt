@@ -27,6 +27,7 @@ fun SplashScreen(
     Log.d("EduLogs", "Splash Start")
     val isUserLoggedIn by viewModel.isUserLoggedIn.collectAsState()
 
+
     LaunchedEffect(isUserLoggedIn) {
         Log.d("EduLogs", "LaunchedEffect Splash Start")
         if (isUserLoggedIn != null) {

@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.crm.edu.core.network.AuthInterceptor
 import com.crm.edu.data.AppDatabase
+import com.crm.edu.data.config.local.pref.ConfigPreferences
+import com.crm.edu.data.config.remote.api.ConfigApi
 import com.crm.edu.data.holiday.HolidayApi
 import com.crm.edu.data.holiday.local.HolidayDao
 import com.crm.edu.data.leaverequest.remote.LeaveRequestApi
@@ -124,4 +126,15 @@ object AppModule {
     @Provides
     @Singleton
     fun provideLeavesDao(db: AppDatabase): LeavesDao = db.leaveDao()
+
+    @Provides
+    @Singleton
+    fun provideAppConfigApi(retrofit: Retrofit): ConfigApi =
+        retrofit.create(ConfigApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideConfigPreference(@ApplicationContext context: Context): ConfigPreferences =
+        ConfigPreferences(context)
+
 }
