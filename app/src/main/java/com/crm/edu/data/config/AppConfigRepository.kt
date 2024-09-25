@@ -1,5 +1,6 @@
 package com.crm.edu.data.config
 
+import android.util.Log
 import com.crm.edu.core.EResult
 import com.crm.edu.data.config.local.LocalDataSource
 import com.crm.edu.data.config.local.pref.ConfigPreferencesKeys
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 class AppConfigRepository @Inject constructor(
-    private val LocalDataSource: LocalDataSource,
+    private val localDataSource: LocalDataSource,
     private val configApi: ConfigApi
 ) {
 
@@ -20,7 +21,8 @@ class AppConfigRepository @Inject constructor(
         emit(EResult.Loading)
         try {
             val remoteData = configApi.getAppConfig()
-            LocalDataSource.saveUserData(getAppConfigMap(remoteData))
+            Log.d("getAppConfig","remoteData ${remoteData.configData}")
+            localDataSource.saveUserData(getAppConfigMap(remoteData))
             emit(EResult.Success(remoteData))
         } catch (ex: Exception) {
             emit(EResult.Error(ex))
@@ -45,4 +47,9 @@ class AppConfigRepository @Inject constructor(
             ConfigPreferencesKeys.UPDATED_BY.name to configResponse.configData?.updatedBy.toString(),
         )
     }
+
+    suspend fun getLogo(): String? {
+        return localDataSource.getLogo()
+    }
+
 }
