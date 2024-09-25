@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crm.edu.core.EResult
+import com.crm.edu.domain.login.GetLogoFromAppConfigUseCase
 import com.crm.edu.domain.login.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,10 +17,18 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    private val getLogoFromAppConfigUseCase: GetLogoFromAppConfigUseCase
 ) : ViewModel() {
     private val _loginState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val loginState: StateFlow<LoginUiState> = _loginState.asStateFlow()
+
+    private val _updateLogoImage = MutableStateFlow<String?>(null)
+    val updateLogoImage: StateFlow<String?> = _updateLogoImage.asStateFlow()
+
+    init {
+        getLogoFromAppConfig()
+    }
 
     fun login(username: String, password: String) {
         viewModelScope.launch {
@@ -44,6 +53,12 @@ class LoginViewModel @Inject constructor(
                     else -> {}
                 }
             }
+        }
+    }
+
+    fun getLogoFromAppConfig() {
+        viewModelScope.launch {
+            _updateLogoImage.value = getLogoFromAppConfigUseCase.execute()
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.crm.edu.data.config.local.pref
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -29,9 +30,10 @@ class ConfigPreferences(context: Context) {
     }
 
 
-    suspend fun saveUserData(userData: Map<String, String>) {
+    suspend fun saveAppPrefData(userData: Map<String, String>) {
         dataStore.edit { preferences ->
             userData.forEach { (key, value) ->
+                Log.d("saveAppPrefData", " key:$key value $value")
                 when (key) {
                     ConfigPreferencesKeys.ID.name -> preferences[ConfigPreferencesKeys.ID] =
                         value
@@ -69,6 +71,14 @@ class ConfigPreferences(context: Context) {
         return dataStore.data
             .map { preferences ->
                 preferences[ConfigPreferencesKeys.VERSION]
+            }
+            .first()
+    }
+
+    suspend fun getLogo(): String? {
+        return dataStore.data
+            .map { preferences ->
+                preferences[ConfigPreferencesKeys.LOGO]
             }
             .first()
     }

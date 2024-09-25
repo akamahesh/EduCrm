@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 data class ConfigResponseDTO(
     @SerialName("status") var status: Int? = null,
     @SerialName("message") var message: String? = null,
-    @SerialName("date") var configData: ConfigData? = null,
+    @SerialName("data") var configData: ConfigData? = null,
 
 )
 
