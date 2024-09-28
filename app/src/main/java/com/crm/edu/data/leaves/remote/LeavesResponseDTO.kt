@@ -1,5 +1,6 @@
 package com.crm.edu.data.leaves.remote
 
+import com.crm.edu.data.leaves.LeaveData
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -37,4 +38,32 @@ data class LeaveDetailDTO(
     @SerialName("halfday_type_name") val halfDayTypeName: String,
     @SerialName("approval_status_text") val approvalStatusText: String,
     @SerialName("approval_status_color") val approvalStatusColor: String,
+)
+
+fun LeaveDetailDTO.asExternalModel() = LeaveData(
+    id = id,
+    staffId = staffId,
+    staffName = staffName,
+    leaveCount = leaveCount,
+    leaveType = leaveType,
+    createdBy = createdBy,
+    createdDate = createdDate,
+    approvalStatus = approvalStatus,
+    approvalBy = approvalBy,
+    approvalDate = approvalDate,
+    applyDate = applyDate,
+    message = message,
+    rejectMessage = rejectMessage,
+    isAbsent = isAbsent,
+    attendanceStatus = attendanceStatus,
+    reason = reason,
+    dates = dates,
+    isHalfDay = isHalfDay,
+    halfDayType = halfDayType,
+    toDate = toDate,
+    fromDate = fromDate,
+    leaveTypeName = leaveTypeName,
+    halfDayTypeName = halfDayTypeName,
+    approvalStatusText = approvalStatusText,
+    approvalStatusColor = approvalStatusColor
 )

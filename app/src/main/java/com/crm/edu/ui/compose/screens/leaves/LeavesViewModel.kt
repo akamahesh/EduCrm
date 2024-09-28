@@ -8,6 +8,7 @@ import com.crm.edu.core.EResult
 import com.crm.edu.data.leaves.ApproveLeaveData
 import com.crm.edu.data.leaves.LeaveData
 import com.crm.edu.data.leaves.LeaveRepository
+import com.crm.edu.ui.compose.screens.calendar.utils.getCurrentMonthYear
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,20 +22,27 @@ class LeavesViewModel @Inject constructor(
 ) : ViewModel() {
 
 
+    private val teamStatus: String = savedStateHandle["teamStatus"] ?: ""
+
     private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
     internal val uiState: StateFlow<UIState> get() = _uiState
+
+    val selectedMonth = MutableStateFlow(getCurrentMonthYear().first)
+    val selectedYear = MutableStateFlow(getCurrentMonthYear().second)
 
     private val _leaveApprovalState =
         MutableStateFlow<EResult<ApproveLeaveData>?>(null)
     val leaveApprovalState: StateFlow<EResult<ApproveLeaveData>?> get() = _leaveApprovalState
 
     init {
-        fetchLeaveRequests()
+        Log.d("EduLogs", "LeavesViewModel teamStatus : $teamStatus")
+        fetchLeaveRequests(teamStatus)
     }
 
-    fun fetchLeaveRequests() {
+    fun fetchLeaveRequests(teamStatus: String) {
         viewModelScope.launch {
-            repository.getLeaveData().collect { result ->
+            repository.getLeaveData(teamStatus, selectedMonth.value, selectedYear.value)
+                .collect { result ->
                 Log.d("EduLogs", "fetchLeaveRequests: $result")
                 when (result) {
                     is EResult.Loading -> {
@@ -66,6 +74,10 @@ class LeavesViewModel @Inject constructor(
                 _leaveApprovalState.value = result
             }
         }
+    }
+
+    fun refreshData() {
+        fetchLeaveRequests(teamStatus)
     }
 
 }

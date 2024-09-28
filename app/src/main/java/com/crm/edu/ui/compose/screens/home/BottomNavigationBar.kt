@@ -1,4 +1,4 @@
-package com.crm.edu.ui.compose.screens
+package com.crm.edu.ui.compose.screens.home
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -29,13 +29,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.crm.edu.ui.compose.Screen
+import com.crm.edu.ui.compose.screens.CallManagerScreen
 import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
 import com.crm.edu.ui.compose.screens.calendar.CalendarScreen
 import com.crm.edu.ui.compose.screens.calendar.tryouts.NewCalendarScreen
-import com.crm.edu.ui.compose.screens.calendarv2.AttendanceScreenWithCalendarView
 import com.crm.edu.ui.compose.screens.dashboard.DashboardScreen
 import com.crm.edu.ui.compose.screens.holidayLeaves.HolidayCalendarScreen
 import com.crm.edu.ui.compose.screens.leaveRequest.LeaveRequestScreen
+import com.crm.edu.ui.compose.screens.leaves.LeavesOptionScreen
 import com.crm.edu.ui.compose.screens.leaves.LeavesScreen
 import com.crm.edu.ui.compose.screens.markAttendance.MarkAttendanceScreen
 import com.crm.edu.ui.compose.screens.myteam.MyTeamScreen
@@ -43,7 +44,11 @@ import com.crm.edu.ui.compose.screens.myteam.MyTeamScreen
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
+fun BottomNavigationBar(
+    navController: NavHostController,
+    bottomNavigationItems: List<BottomNavigationItem>,
+    showCallManager: Boolean
+) {
     //initialize the default selected item
 
     val context: Context = LocalContext.current
@@ -53,41 +58,43 @@ fun BottomNavigationBar(navController: NavHostController) {
 
     Scaffold(modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar {
-                bottomNavigationItems().forEachIndexed { index, bottomNavigationItem ->
-                    NavigationBarItem(
-                        selected = selectedItemIndex == index,
-                        onClick = {
-                            selectedItemIndex = index
-                            navController.navigate(bottomNavigationItem.route) {
-                                navController.graph.startDestinationRoute?.let {
-                                    popUpTo(it) {
-                                        saveState = true
+            if (bottomNavigationItems.size > 1) {
+                NavigationBar {
+                    bottomNavigationItems.forEachIndexed { index, bottomNavigationItem ->
+                        NavigationBarItem(
+                            selected = selectedItemIndex == index,
+                            onClick = {
+                                selectedItemIndex = index
+                                navController.navigate(bottomNavigationItem.route) {
+                                    navController.graph.startDestinationRoute?.let {
+                                        popUpTo(it) {
+                                            saveState = true
+                                        }
                                     }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        label = {
-                            Text(text = bottomNavigationItem.title)
-                        },
-                        icon = {
-                            BadgedBox(badge = {
-                                if (bottomNavigationItem.badgeCount != null) {
-                                    Badge {
-                                        Text(text = bottomNavigationItem.badgeCount.toString())
+                            },
+                            label = {
+                                Text(text = bottomNavigationItem.title)
+                            },
+                            icon = {
+                                BadgedBox(badge = {
+                                    if (bottomNavigationItem.badgeCount != null) {
+                                        Badge {
+                                            Text(text = bottomNavigationItem.badgeCount.toString())
+                                        }
+                                    } else if (bottomNavigationItem.hasUpdate) {
+                                        Badge()
                                     }
-                                } else if (bottomNavigationItem.hasUpdate) {
-                                    Badge()
+                                }) {
+                                    Icon(
+                                        imageVector = if (index == selectedItemIndex) bottomNavigationItem.selectedIcon else bottomNavigationItem.unselectedIcon,
+                                        contentDescription = bottomNavigationItem.title
+                                    )
                                 }
-                            }) {
-                                Icon(
-                                    imageVector = if (index == selectedItemIndex) bottomNavigationItem.selectedIcon else bottomNavigationItem.unselectedIcon,
-                                    contentDescription = bottomNavigationItem.title
-                                )
-                            }
-                        })
+                            })
+                    }
                 }
             }
         }) { paddingValues ->
@@ -96,11 +103,12 @@ fun BottomNavigationBar(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(WindowInsets.navigationBars.asPaddingValues()),
             navController = navController,
-            startDestination = Screen.CallManager.route
+            startDestination = if (showCallManager) Screen.CallManager.route else Screen.Dashboard.route
         ) {
             composable(route = Screen.CallManager.route) {
                 CallManagerScreen(navController)
             }
+
             composable(route = Screen.Dashboard.route) {
                 DashboardScreen(navController, onOptionClick = { route ->
                     navController.navigate(route = route)
@@ -122,13 +130,31 @@ fun BottomNavigationBar(navController: NavHostController) {
                     navController.navigateUp()
                 }
             }
+
             composable(route = Screen.HolidayCalendar.route) {
                 HolidayCalendarScreen(navController, onUpClick = {
                     navController.navigateUp()
                 })
             }
-            composable(route = Screen.Leaves.route) {
+
+            composable(route = Screen.LeavesOptions.route) {
+                LeavesOptionScreen(
+                    navController,
+                    onOptionClick = { route ->
+                        navController.navigate(route = route)
+                    },
+                    onUpClick = { navController.navigateUp() }
+                )
+            }
+            composable(route = Screen.Leaves.route, arguments = listOf(
+                navArgument("teamStatus") {
+                    defaultValue = ""
+                    type = NavType.StringType
+                }
+            )) { navBackStackEntry ->
+                val teamStatus = navBackStackEntry.arguments?.getString("teamStatus").orEmpty()
                 LeavesScreen(
+                    teamStatus,
                     navController,
                     onUpClick = { navController.navigateUp() },
                     onToast = {
@@ -170,26 +196,11 @@ fun BottomNavigationBar(navController: NavHostController) {
                         navController.navigate(route = route)
                     })
             }
-            composable(route = Screen.CalendarV2.route, arguments = listOf(
-                navArgument("staffId") {
-                    defaultValue = "default"
-                    type = NavType.StringType
-                }
-            )) { navBackStackEntry ->
-                /* Extracting the id from the route */
-                val staffId = navBackStackEntry.arguments?.getString("staffId")
-                AttendanceScreenWithCalendarView(staffId = staffId, navController = navController) {
-                    navController.navigateUp()
-                }
-            }
 
             composable(route = Screen.Sample.route) {
                 CalendarScreen(navController) {
                     navController.navigateUp()
                 }
-//                SampleScreen(navController = navController) {
-//                    navController.navigateUp()
-//                }
             }
 
         }

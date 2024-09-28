@@ -1,7 +1,6 @@
 package com.crm.edu.ui.compose.screens.leaves
 
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,29 +50,49 @@ import androidx.navigation.compose.rememberNavController
 import com.crm.edu.R
 import com.crm.edu.core.EResult
 import com.crm.edu.data.leaves.LeaveData
+import com.crm.edu.ui.compose.screens.calendar.tryouts.MonthDropdown
+import com.crm.edu.ui.compose.screens.calendar.tryouts.YearDropdown
 import com.crm.edu.ui.compose.screens.holidayLeaves.toColorOrDefault
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeavesScreen(
+    teamStatus: String,
     navController: NavHostController,
     viewModel: LeavesViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
     onToast: (message: String) -> Unit = {}
 ) {
-    val context: Context = LocalContext.current
     val state by viewModel.uiState.collectAsState()
+    val toolbarTitle =
+        if (teamStatus.equals("1")) stringResource(id = R.string.team_leaves_title) else stringResource(
+            id = R.string.my_leaves_title
+        )
+
+    val selectedMonth by viewModel.selectedMonth.collectAsState()
+    val selectedYear by viewModel.selectedYear.collectAsState()
+
     val leaveApprovalState by viewModel.leaveApprovalState.collectAsState()
 
     LeavesScreenInternal(
+        toolbarTitle,
         state,
+        selectedMonth,
+        selectedYear,
         onUpClick,
-        retry = { viewModel.fetchLeaveRequests() },
+        retry = { viewModel.refreshData() },
         onApprove = { id, approvalStatus, message ->
             viewModel.onLeaveApproved(id, approvalStatus, message)
         },
         onReject = { id, approvalStatus, message ->
             viewModel.onLeaveApproved(id, approvalStatus, message)
+        },
+        onSelectMonth = { month ->
+            viewModel.selectedMonth.value = month
+            viewModel.refreshData()
+        },
+        onSelectYear = { year ->
+            viewModel.selectedYear.value = year
+            viewModel.refreshData()
         }
     )
 
@@ -88,7 +106,7 @@ fun LeavesScreen(
                 LaunchedEffect(Unit) {
                     onToast.invoke(it.data.message)
                     if (it.data.status == 1) {
-                        viewModel.fetchLeaveRequests()
+                        viewModel.refreshData()
                     }
                 }
 
@@ -108,17 +126,20 @@ fun LeavesScreen(
 
 @Composable
 private fun LeavesScreenInternal(
+    toolbarTitle: String,
     state: UIState,
+    selectedMonth: Int,
+    selectedYear: Int,
     onUpClick: () -> Unit,
     retry: () -> Unit,
     onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
-    onReject: (id: String, approvalStatus: String, message: String) -> Unit
+    onReject: (id: String, approvalStatus: String, message: String) -> Unit,
+    onSelectMonth: (Int) -> Unit,
+    onSelectYear: (Int) -> Unit,
 ) {
-    val context: Context = LocalContext.current
-
     Scaffold(
         topBar = {
-            TopBar(onUpClick = onUpClick)
+            TopBar(title = toolbarTitle, onUpClick = onUpClick)
         }
     ) { paddingValues ->
         when (state) {
@@ -127,7 +148,16 @@ private fun LeavesScreenInternal(
             }
 
             is UIState.Success -> {
-                SuccessLayout(paddingValues, state.data.leaveDataList, onApprove, onReject)
+                SuccessLayout(paddingValues = paddingValues,
+                    leaveDataList = state.data.leaveDataList,
+                    currentMonth = selectedMonth,
+                    currentYear = selectedYear,
+                    onApprove = onApprove,
+                    onReject = onReject,
+                    onMonthYearChange = { month, year ->
+                        onSelectMonth.invoke(month)
+                        onSelectYear.invoke(year)
+                    })
             }
 
             is UIState.Error -> {
@@ -145,8 +175,11 @@ private fun LeavesScreenInternal(
 private fun SuccessLayout(
     paddingValues: PaddingValues,
     leaveDataList: List<LeaveData>,
+    currentMonth: Int,
+    currentYear: Int,
     onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
-    onReject: (id: String, approvalStatus: String, message: String) -> Unit
+    onReject: (id: String, approvalStatus: String, message: String) -> Unit,
+    onMonthYearChange: (Int, Int) -> Unit
 ) {
     var selectedFilter by remember { mutableStateOf("All") }
     // Apply filtering based on the selected filter
@@ -158,6 +191,22 @@ private fun SuccessLayout(
             .padding(paddingValues)
             .fillMaxSize()
     ) {
+        // Month and Year Dropdown
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            MonthDropdown(currentMonth) { selectedMonth ->
+                onMonthYearChange(selectedMonth, currentYear)
+            }
+            YearDropdown(currentYear) { selectedYear ->
+                onMonthYearChange(currentMonth, selectedYear)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         FilterDropdown(selectedFilter) { selectedFilter = it }
         Spacer(modifier = Modifier.height(16.dp))
         LeaveRequestList(filteredLeaveDataList, onApprove, onReject)
@@ -322,7 +371,7 @@ private fun getLeaveType(type: String): String {
 @Composable
 fun PreviewLeaveScreen() {
     val navController = rememberNavController()
-    LeavesScreen(navController)
+    LeavesScreen(teamStatus = "1", navController = navController)
 }
 
 private fun getLeaveList(): List<LeaveData> {
@@ -333,12 +382,13 @@ private fun getLeaveList(): List<LeaveData> {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBar(
+    title: String,
     onUpClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     TopAppBar(
         title = {
-            Text(stringResource(id = R.string.leaves_title))
+            Text(title)
         },
         modifier = modifier.statusBarsPadding(),
         navigationIcon = {

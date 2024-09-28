@@ -9,5 +9,7 @@
     <string name="leave_request_title">Leave Request</string>
     <string name="my_team_title">My Team</string>
     <string name="leaves_title">Leaves</string>
+    <string name="team_leaves_title">Team Leaves</string>
+    <string name="my_leaves_title">My Leaves</string>
     <string name="sample_title">Sample</string>
 </resources>

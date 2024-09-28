@@ -10,9 +10,9 @@ sealed class Screen(val route: String) {
     data object MarkAttendance : Screen("mark_attendance_screen")
     data object LeaveRequest : Screen("leave_request_screen")
     data object HolidayCalendar : Screen("holiday_calendar_screen")
-    data object Leaves : Screen("leaves_screen")
-    data object Calendar : Screen("calendar_screen?staffId={staffId}")
+    data object Leaves : Screen("leaves_screen?teamStatus={teamStatus}")
+    data object LeavesOptions : Screen("leaves_option_screen")
+    data object Calendar : Screen("calendar_screen?staffId={staffId}&staffName={staffName}")
     data object MyTeam : Screen("my_team_screen")
-    data object CalendarV2 : Screen("calendar_v2_screen?staffId={staffId}")
     data object Sample : Screen("sample")
 }

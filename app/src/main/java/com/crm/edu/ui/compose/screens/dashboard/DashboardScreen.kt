@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -130,7 +129,7 @@ private fun getAllDashboardOptions(): List<DashboardItem> {
         ),
         DashboardItem(
             name = "Leaves",
-            route = Screen.Leaves.route,
+            route = Screen.LeavesOptions.route,
             drawableRes = R.drawable.ic_leave_request,
             color = Color.DarkGray
         ),

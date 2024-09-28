@@ -112,6 +112,7 @@ fun NewCalendarScreen(
                     selectedYear,
                     attendanceMapData,
                     summaryTable,
+                    staffName,
                     onSelectYear = {
                         selectedYear = it
                     },
@@ -143,6 +144,7 @@ private fun SuccessLayout(
     selectedYear: Int,
     attendanceData: Map<Int, Color>,
     summaryTableData: List<SummaryTableData>,
+    staffName: String?,
     onSelectMonth: (Int) -> Unit,
     onSelectYear: (Int) -> Unit,
 ) {
@@ -151,6 +153,7 @@ private fun SuccessLayout(
             .padding(padding)
     ) {
         AttendanceCalendarScreen(
+            staffName = staffName,
             currentMonth = selectedMonth,
             currentYear = selectedYear,
             attendanceData = attendanceData,
@@ -216,7 +219,7 @@ private fun AttendanceTopBar(
 ) {
     TopAppBar(
         title = {
-            Text(name.orEmpty() + stringResource(id = R.string.staff_attendance_title))
+            Text(stringResource(id = R.string.staff_attendance_title))
         },
         modifier = modifier.statusBarsPadding(),
         navigationIcon = {
@@ -233,6 +236,7 @@ private fun AttendanceTopBar(
 
 @Composable
 private fun AttendanceCalendarScreen(
+    staffName: String?,
     currentMonth: Int,
     currentYear: Int,
     attendanceData: Map<Int, Color>, // Map of day to color representing status
@@ -242,8 +246,22 @@ private fun AttendanceCalendarScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp)
     ) {
+
+        if (!staffName.isNullOrBlank()) {
+            Text(
+                text = staffName.toString(),
+                modifier = Modifier
+                    .background(color = Color.LightGray.copy(alpha = 0.8f)) // 50% alpha
+                    .padding(8.dp)
+                    .fillMaxWidth(),
+                style = MaterialTheme.typography.labelMedium,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         // Month and Year Dropdown
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             MonthDropdown(currentMonth) { selectedMonth ->
