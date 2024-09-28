@@ -5,6 +5,7 @@ import com.crm.edu.data.config.local.pref.ConfigPreferences
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
+import java.net.URL
 
 
 class HostSelectionInterceptor(private val configPreferences: ConfigPreferences):Interceptor {
@@ -15,6 +16,10 @@ class HostSelectionInterceptor(private val configPreferences: ConfigPreferences)
         if(host == null) {
             host =
                 runBlocking { configPreferences.getBaseUrl() }
+            if(host?.isNotEmpty() == true){
+                host = URL(host).host
+                Log.d("HostSelectionInterceptor","host $host") //also setting in provideBaseUrl but for next session
+            }
         }
         return host
     }

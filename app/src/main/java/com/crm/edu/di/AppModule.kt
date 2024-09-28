@@ -82,7 +82,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient, @Named("baseUrl") baseUrl: String): Retrofit {
 
-        Log.d("AppModule", "provideRetrofit:: base url $baseUrl")
+        Log.d("AppModule", "provideRetrofit:: base url $baseUrl") //HostSelectionInterceptor
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)
