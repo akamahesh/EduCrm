@@ -60,7 +60,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun getLogoFromAppConfig() {
+   private fun getLogoFromAppConfig() {
         viewModelScope.launch {
             _updateLogoImage.value = getLogoFromAppConfigUseCase.execute()
         }

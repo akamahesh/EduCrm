@@ -8,10 +8,12 @@ import com.crm.edu.data.leaves.ApproveLeaveData
 import com.crm.edu.domain.calllogs.GetUserNameDesignation
 import com.crm.edu.domain.calllogs.MarkLogoutUseCase
 import com.crm.edu.domain.calllogs.NameDesignation
+import com.crm.edu.domain.login.GetLogoFromAppConfigUseCase
 import com.crm.edu.ui.compose.screens.calendar.tryouts.CalendarUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CallLogsViewModel @Inject constructor(
     private val markLogoutUseCase: MarkLogoutUseCase,
-    private val getUserNameDesignation : GetUserNameDesignation
+    private val getUserNameDesignation : GetUserNameDesignation,
+    private val getLogoFromAppConfigUseCase: GetLogoFromAppConfigUseCase
 ) : ViewModel() {
 
     private val _userNameDesignationState =
@@ -29,9 +32,12 @@ class CallLogsViewModel @Inject constructor(
     private val _callLogsUiState = MutableStateFlow<CallLogsUIState?>(null)
     internal val callLogsUiState: StateFlow<CallLogsUIState?> get() = _callLogsUiState
 
+    private val _updateLogoImage = MutableStateFlow<String?>(null)
+    val updateLogoImage: StateFlow<String?> = _updateLogoImage.asStateFlow()
 
     init {
         getUserNameDesignation()
+        getLogoFromAppConfig()
     }
 
      private fun getUserNameDesignation() {
@@ -45,6 +51,12 @@ class CallLogsViewModel @Inject constructor(
             markLogoutUseCase.execute()
             _callLogsUiState.value = CallLogsUIState.moveToLogin
 
+        }
+    }
+
+    private fun getLogoFromAppConfig() {
+        viewModelScope.launch {
+            _updateLogoImage.value = getLogoFromAppConfigUseCase.execute()
         }
     }
 }

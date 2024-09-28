@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +35,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -69,6 +71,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
+import com.bumptech.glide.request.RequestOptions
 import com.crm.edu.R
 import com.crm.edu.domain.calllogs.NameDesignation
 import com.crm.edu.ui.compose.Screen
@@ -77,6 +83,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 
@@ -85,7 +92,9 @@ fun CallLogsScreen(navController: NavHostController, moveToLogin: () -> Unit ) {
     val callLogsViewModel = hiltViewModel<CallLogsViewModel>()
     val userNameDesignationState by callLogsViewModel.userNameDesignationState.collectAsState()
     val uiStateData by callLogsViewModel.callLogsUiState.collectAsState()
-    MainContent(userNameDesignationState) { callLogsViewModel.markLogout() }
+    val logoImageUrl by callLogsViewModel.updateLogoImage.collectAsState()
+
+    MainContent(userNameDesignationState,logoImageUrl) { callLogsViewModel.markLogout() }
 
     when(uiStateData){
         is CallLogsUIState.moveToLogin -> {
@@ -98,17 +107,17 @@ fun CallLogsScreen(navController: NavHostController, moveToLogin: () -> Unit ) {
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-private fun MainContent(userNameDesignationState: NameDesignation, logOut: () -> Unit) {
+private fun MainContent(userNameDesignationState: NameDesignation, logoImageUrl:String?, logOut: () -> Unit) {
     val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp),
+            .padding(10.dp, 4.dp, 10.dp, 4.dp),
         verticalArrangement= Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        CallLogPermission(context, userNameDesignationState, logOut)
+        CallLogPermission(context, userNameDesignationState, logoImageUrl, logOut)
     }
 }
 
@@ -117,6 +126,7 @@ private fun MainContent(userNameDesignationState: NameDesignation, logOut: () ->
 fun CallLogPermission(
     context: Context,
     userNameDesignationState: NameDesignation,
+    logoImageUrl:String?,
     logOut: () -> Unit
 ) {
     val readCallLogPermissionState =
@@ -125,11 +135,11 @@ fun CallLogPermission(
         // If the camera permission is granted, then show screen with the feature enabled
         PermissionStatus.Granted -> {
             ////////////////////////////////////////// context.startService(Intent(context, CallLogUploadService::class.java))
-            addHeader(context, userNameDesignationState, logOut)
+            addHeader(context, userNameDesignationState, logoImageUrl, logOut)
             Spacer(modifier = Modifier.height(4.dp))
             val defaultSelectedValue = 1
             var selectedOption by remember { mutableStateOf("Today") }
-            DynamicSelectTextField("Today", listOf("Today", "Yesterday", "Week"), "Select Time Range", { selectedValue -> selectedOption=selectedValue})
+            DynamicSelectTextField(selectedOption, listOf("Today", "Yesterday", "Week"), "Select Time Range", { selectedValue -> selectedOption=selectedValue})
             Spacer(modifier = Modifier.height(4.dp))
             displayList(context = context, selectedValue = selectedOption)
             //AddDropdown(context,defaultSelectedValue)
@@ -320,7 +330,6 @@ fun cardLayout(
                     text = title,
                     fontSize = 12.sp,
                     color = Color.DarkGray,
-
                     modifier = Modifier
                         .padding(0.dp, 10.dp, 0.dp, 0.dp)
                 )
@@ -369,7 +378,7 @@ fun cardLayout(
 
 
 @Composable
-fun addHeader(context: Context, userNameDesignationState: NameDesignation, logOut: () -> Unit) {
+fun addHeader(context: Context, userNameDesignationState: NameDesignation, logoImageUrl:String?, logOut: () -> Unit) {
     var isPopupVisible by remember { mutableStateOf(false) }
        val showDialog = remember { mutableStateOf(false) }
       if (showDialog.value) {
@@ -379,13 +388,35 @@ fun addHeader(context: Context, userNameDesignationState: NameDesignation, logOu
        }
     Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier
         .fillMaxWidth()
-        .padding(top = 20.dp)) {
-        Text(
-            text = "Call Logs",
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            //  modifier = Modifier.weight(1.0f,true)
-        )
+        .padding(top = 5.dp)) {
+
+        Box(
+            modifier = Modifier
+                .heightIn(min = 70.dp, max = 90.dp)
+                .aspectRatio(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            logoImageUrl?.let {
+                GlideImage(
+                    imageModel = { it },
+                    requestBuilder = {
+                        Glide.with(LocalContext.current).asBitmap()
+                            .apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
+                            .thumbnail(0.6f).transition(withCrossFade())
+                    },
+                    requestOptions = { RequestOptions().fitCenter()},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp, 10.dp, 8.dp, 0.dp),
+                    loading = {
+                        Box(modifier = Modifier.matchParentSize()) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+                    },
+                    failure = { Text(text = "image request failed.") })
+            }
+        }
+
         Spacer(modifier = Modifier.width(4.dp))
         IconButton(onClick = { isPopupVisible = true }) {
             Icon(Icons.Default.MoreVert, contentDescription = "More options")
