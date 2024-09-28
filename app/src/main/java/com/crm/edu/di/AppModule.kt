@@ -1,6 +1,7 @@
 package com.crm.edu.di
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import com.crm.edu.core.network.AuthInterceptor
 import com.crm.edu.data.AppDatabase
@@ -16,6 +17,7 @@ import com.crm.edu.data.login.remote.api.LoginApi
 import com.crm.edu.data.markAttendance.remote.MarkAttendanceApi
 import com.crm.edu.data.myteam.local.MyTeamDao
 import com.crm.edu.data.myteam.remote.MyTeamApi
+import com.crm.edu.network.HostSelectionInterceptor
 import com.crm.edu.utils.Constants
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -23,11 +25,13 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -43,10 +47,12 @@ object AppModule {
     fun provideBaseOkHttpClient(
         authInterceptor: AuthInterceptor,
         httpLoggingInterceptor: HttpLoggingInterceptor,
+        hostSelectionInterceptor: HostSelectionInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(httpLoggingInterceptor)
+            .addInterceptor(hostSelectionInterceptor)
             .build()
     }
 
@@ -65,14 +71,32 @@ object AppModule {
         }
     }
 
+    @Provides
+    @Singleton
+    fun provideHostSelectionInterceptor(configPreferences:ConfigPreferences): HostSelectionInterceptor {
+        return HostSelectionInterceptor(configPreferences)
+    }
+
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
-        .baseUrl(Constants.Endpoints.STAGING_ENDPOINT)
-        .client(okHttpClient)
-        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-        .build()
+    fun provideRetrofit(okHttpClient: OkHttpClient, @Named("baseUrl") baseUrl: String): Retrofit {
+
+        Log.d("AppModule", "provideRetrofit:: base url $baseUrl")
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
+    @Provides
+    @Named("baseUrl")
+    fun provideBaseUrl(configPreferences:ConfigPreferences): String {
+        val baseUrl = runBlocking { configPreferences.getBaseUrl() ?: Constants.Endpoints.STAGING_ENDPOINT }
+        Log.d("AppModule", " :provideBaseUrl :: base url $baseUrl")
+        return baseUrl
+    }
 
     @Provides
     @Singleton

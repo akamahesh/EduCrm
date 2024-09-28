@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import com.crm.edu.utils.Constants.Endpoints.PROD_ENDPOINT
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -79,6 +80,14 @@ class ConfigPreferences(context: Context) {
         return dataStore.data
             .map { preferences ->
                 preferences[ConfigPreferencesKeys.LOGO]
+            }
+            .first()
+    }
+
+    suspend fun getBaseUrl(): String? {
+        return dataStore.data
+            .map { preferences ->
+                preferences[ConfigPreferencesKeys.BASE_URL]
             }
             .first()
     }
