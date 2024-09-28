@@ -6,8 +6,13 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface LeavesApi {
+
     @GET("leave_apply_list")
     suspend fun getLeavesData(): LeavesResponseDTO
+
+    @FormUrlEncoded
+    @POST("leave_apply_list")
+    suspend fun getLeavesData(@FieldMap(encoded = false) data: Map<String, String?>): LeavesResponseDTO
 
     @FormUrlEncoded
     @POST("leave_apply_list")

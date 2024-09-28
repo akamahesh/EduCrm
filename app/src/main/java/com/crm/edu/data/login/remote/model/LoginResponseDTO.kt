@@ -34,7 +34,9 @@ data class UserData(
     @SerialName("longitude") var longitude: String? = null,
     @SerialName("designation") var designation: String? = null,
     @SerialName("calls_updates") var callsUpdates: String? = null,
-    @SerialName("department_id") var departmentId: String? = null
+    @SerialName("department_id") var departmentId: String? = null,
+    @SerialName("calls_status") var callsStatus: String? = null,
+
 
 )
 

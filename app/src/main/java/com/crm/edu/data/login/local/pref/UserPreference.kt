@@ -60,6 +60,14 @@ class UserPreferences(context: Context) {
             .first()
     }
 
+    suspend fun getCallStatus(): String? {
+        return dataStore.data
+            .map { preferences ->
+                preferences[UserPreferencesKeys.CALL_STATUS]
+            }
+            .first()
+    }
+
     // Suspend function to get the reporting ID directly
     suspend fun getJWTtoken(): String? {
         return dataStore.data
@@ -130,6 +138,9 @@ class UserPreferences(context: Context) {
                         value
 
                     UserPreferencesKeys.JWT_TOKEN.name -> preferences[UserPreferencesKeys.JWT_TOKEN] =
+                        value
+
+                    UserPreferencesKeys.CALL_STATUS.name -> preferences[UserPreferencesKeys.CALL_STATUS] =
                         value
                 }
             }

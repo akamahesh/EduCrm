@@ -8,6 +8,15 @@ class RemoteDataSource @Inject constructor(
 
     suspend fun getLeavesData() = leavesApi.getLeavesData()
 
+    suspend fun getLeavesData(teamStatus: String, month: Int, year: Int): LeavesResponseDTO {
+        val requestBody = mapOf(
+            "team_status" to teamStatus,
+            "month" to month.toString(),
+            "year" to year.toString(),
+        )
+        return leavesApi.getLeavesData(requestBody)
+    }
+
     suspend fun approveLeave(
         leaveId: String,
         approvalStatus: String,

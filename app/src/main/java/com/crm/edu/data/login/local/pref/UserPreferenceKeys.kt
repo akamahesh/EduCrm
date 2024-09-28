@@ -25,4 +25,5 @@ object UserPreferencesKeys {
     val DEPARTMENT_ID = stringPreferencesKey("department_id")
     val LOGIN_TOKEN = stringPreferencesKey("login_token")
     val JWT_TOKEN = stringPreferencesKey("jwt_token")
+    val CALL_STATUS = stringPreferencesKey("calls_status")
 }
