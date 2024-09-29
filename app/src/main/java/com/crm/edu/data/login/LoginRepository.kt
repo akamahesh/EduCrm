@@ -66,6 +66,7 @@ class LoginRepository @Inject constructor(
             // other thn user data
             UserPreferencesKeys.LOGIN_TOKEN.name to loginData.loginToken.toString(),
             UserPreferencesKeys.JWT_TOKEN.name to loginData.jwtToken.toString(),
+            UserPreferencesKeys.CALL_STATUS.name to loginData.userData?.callsStatus.toString(),
         )
 
     }

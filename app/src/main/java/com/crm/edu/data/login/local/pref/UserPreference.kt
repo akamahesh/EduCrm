@@ -34,7 +34,10 @@ class UserPreferences(context: Context) {
             UserPreferencesKeys.LONGITUDE.name to preferences[UserPreferencesKeys.LONGITUDE],
             UserPreferencesKeys.DESIGNATION.name to preferences[UserPreferencesKeys.DESIGNATION],
             UserPreferencesKeys.CALLS_UPDATES.name to preferences[UserPreferencesKeys.CALLS_UPDATES],
-            UserPreferencesKeys.DEPARTMENT_ID.name to preferences[UserPreferencesKeys.DEPARTMENT_ID]
+            UserPreferencesKeys.DEPARTMENT_ID.name to preferences[UserPreferencesKeys.DEPARTMENT_ID],
+            UserPreferencesKeys.LOGIN_TOKEN.name to preferences[UserPreferencesKeys.LOGIN_TOKEN],
+            UserPreferencesKeys.JWT_TOKEN.name to preferences[UserPreferencesKeys.JWT_TOKEN],
+            UserPreferencesKeys.CALL_STATUS.name to preferences[UserPreferencesKeys.CALL_STATUS],
         )
     }
 
