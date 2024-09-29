@@ -50,5 +50,23 @@ class LeaveRepository @Inject constructor(
     }.catch { e ->
         emit(EResult.Error(e))
     }
+    fun deleteLeave(
+        leaveId: String,
+        status: String,
+    ): Flow<EResult<ApproveLeaveData>> = flow {
+        emit(EResult.Loading)
+        try {
+            val remoteData =
+                remoteDataSource.deleteLeave(leaveId, status)
+            val attendanceData = remoteData.asData()
+            emit(EResult.Success(attendanceData))
+        } catch (ex: Exception) {
+            emit(EResult.Error(ex))
+        }
+    }.onStart {
+        emit(EResult.Loading)
+    }.catch { e ->
+        emit(EResult.Error(e))
+    }
 
 }

@@ -29,4 +29,15 @@ class RemoteDataSource @Inject constructor(
         )
         return leavesApi.approveLeave(requestBody)
     }
+
+    suspend fun deleteLeave(
+        leaveId: String,
+        status: String,
+    ): ApproveLeaveResponseDTO {
+        val requestBody = mapOf(
+            "id" to leaveId,
+            "delete_status" to status
+        )
+        return leavesApi.deleteLeave(requestBody)
+    }
 }

@@ -54,11 +54,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.crm.edu.R
 import com.crm.edu.core.EResult
 import com.crm.edu.data.markAttendance.CheckAttendanceData
-import com.crm.edu.data.markAttendance.remote.MarkAttendanceData
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
@@ -67,13 +65,11 @@ import com.google.accompanist.permissions.rememberPermissionState
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MarkAttendanceScreen(
-    navController: NavHostController,
     viewModel: MarkAttendanceViewModel = hiltViewModel(),
-    onOptionClick: (String) -> Unit = {},
     onUpClick: () -> Unit = {},
 ) {
     val checkAttendanceState by viewModel.state.collectAsState()
-    val markAttendanceState by viewModel.markAttendanceState.collectAsState()
+    val dialogState by viewModel.dialogState.collectAsState()
     val location by viewModel.locationData.collectAsState()
 
     val locationPermissionState =
@@ -88,7 +84,7 @@ fun MarkAttendanceScreen(
             MarkAttendanceScreenInternal(
                 checkAttendanceState,
                 location,
-                markAttendanceState,
+                dialogState,
                 onCheckInCheckout = {
                     Log.d("EduLogs", "checkInOut  $it location: $location")
                     viewModel.checkInOut(
@@ -97,7 +93,8 @@ fun MarkAttendanceScreen(
                         location?.longitude.toString()
                     )
                 },
-                onUpClick = onUpClick
+                onUpClick = onUpClick,
+                dismissDialog = { viewModel.dismissDialog() },
             ) {
                 viewModel.retry()
             }
@@ -131,7 +128,7 @@ private fun PermissionLayout(
                     fontSize = 18.sp,
                 ),
                 modifier = Modifier
-                    .padding(start = 16.dp)
+                    .padding(8.dp)
                     .align(Alignment.CenterHorizontally)
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -150,45 +147,17 @@ private fun PermissionLayout(
 private fun MarkAttendanceScreenInternal(
     checkAttendanceState: EResult<CheckAttendanceData>,
     location: Location?,
-    markAttendanceState: EResult<MarkAttendanceData>?,
+    dialogState: AttendanceDialogState?,
     onCheckInCheckout: (String) -> Unit = {},
     onUpClick: () -> Unit = {},
-    onRetry: () -> Unit
+    dismissDialog: () -> Unit,
+    onRetry: () -> Unit,
 ) {
-    val context = LocalContext.current
     Scaffold(
         topBar = {
             AttendanceTopBar(onUpClick = onUpClick)
         },
     ) { innerPadding ->
-
-        when (markAttendanceState) {
-            is EResult.Success -> {
-                Toast.makeText(
-                    context,
-                    markAttendanceState.data.message,
-                    Toast.LENGTH_SHORT
-                ).show()
-                if (markAttendanceState.data.status == 1) {
-                    onUpClick.invoke()
-                }
-            }
-
-            is EResult.Loading -> {
-                LoadingLayout()
-            }
-
-            is EResult.Error -> {
-                Toast.makeText(
-                    context,
-                    "${markAttendanceState.exception}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            else -> {}
-        }
-
         when (checkAttendanceState) {
             is EResult.Loading -> {
                 LoadingLayout()
@@ -206,6 +175,15 @@ private fun MarkAttendanceScreenInternal(
             }
 
             else -> {}
+        }
+
+        dialogState?.let {
+            AttendanceProgressDialog(it) { refresh ->
+                dismissDialog.invoke()
+                if (refresh) {
+                    onRetry.invoke()
+                }
+            }
         }
     }
 }

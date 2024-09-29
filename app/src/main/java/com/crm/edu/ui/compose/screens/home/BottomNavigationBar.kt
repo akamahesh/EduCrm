@@ -2,7 +2,6 @@ package com.crm.edu.ui.compose.screens.home
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -126,7 +125,7 @@ fun BottomNavigationBar(
             }
 
             composable(route = Screen.LeaveRequest.route) {
-                LeaveRequestScreen(navController) {
+                LeaveRequestScreen {
                     navController.navigateUp()
                 }
             }
@@ -155,11 +154,8 @@ fun BottomNavigationBar(
                 val teamStatus = navBackStackEntry.arguments?.getString("teamStatus").orEmpty()
                 LeavesScreen(
                     teamStatus,
-                    navController,
                     onUpClick = { navController.navigateUp() },
-                    onToast = {
-                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                    })
+                )
             }
 
             composable(
@@ -182,7 +178,7 @@ fun BottomNavigationBar(
                 }
             }
             composable(route = Screen.MarkAttendance.route) {
-                MarkAttendanceScreen(navController, onUpClick = {
+                MarkAttendanceScreen(onUpClick = {
                     navController.navigateUp()
                 })
             }

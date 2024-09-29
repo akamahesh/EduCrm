@@ -31,7 +31,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,10 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.crm.edu.R
-import com.crm.edu.core.EResult
 import com.crm.edu.data.leaves.LeaveData
 import com.crm.edu.ui.compose.screens.calendar.tryouts.MonthDropdown
 import com.crm.edu.ui.compose.screens.calendar.tryouts.YearDropdown
@@ -57,25 +53,28 @@ import com.crm.edu.ui.compose.screens.holidayLeaves.toColorOrDefault
 @Composable
 fun LeavesScreen(
     teamStatus: String,
-    navController: NavHostController,
     viewModel: LeavesViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
-    onToast: (message: String) -> Unit = {}
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val dialogState by viewModel.leavesDialogState.collectAsState()
+    val isMyTeam = teamStatus.equals("1")
     val toolbarTitle =
-        if (teamStatus.equals("1")) stringResource(id = R.string.team_leaves_title) else stringResource(
+        if (isMyTeam) stringResource(id = R.string.team_leaves_title) else stringResource(
             id = R.string.my_leaves_title
         )
 
     val selectedMonth by viewModel.selectedMonth.collectAsState()
     val selectedYear by viewModel.selectedYear.collectAsState()
-
-    val leaveApprovalState by viewModel.leaveApprovalState.collectAsState()
+    var showInputDialog by remember { mutableStateOf(false) }
+    var rejectedId by remember { mutableStateOf("") }
+    var rejectedapprovalStatus by remember { mutableStateOf("") }
 
     LeavesScreenInternal(
+        isMyTeam,
         toolbarTitle,
-        state,
+        uiState,
+        dialogState,
         selectedMonth,
         selectedYear,
         onUpClick,
@@ -84,7 +83,12 @@ fun LeavesScreen(
             viewModel.onLeaveApproved(id, approvalStatus, message)
         },
         onReject = { id, approvalStatus, message ->
-            viewModel.onLeaveApproved(id, approvalStatus, message)
+            rejectedId = id
+            rejectedapprovalStatus = approvalStatus
+            showInputDialog = true
+        },
+        onDelete = { id, status ->
+            viewModel.onLeaveDeleted(id, status)
         },
         onSelectMonth = { month ->
             viewModel.selectedMonth.value = month
@@ -93,50 +97,39 @@ fun LeavesScreen(
         onSelectYear = { year ->
             viewModel.selectedYear.value = year
             viewModel.refreshData()
+        },
+        dismissDialog = {
+            viewModel.dismissDialog()
         }
     )
-
-    leaveApprovalState?.let {
-        when (it) {
-            is EResult.Loading -> {
-                LoadingLayout()
-            }
-
-            is EResult.Success -> {
-                LaunchedEffect(Unit) {
-                    onToast.invoke(it.data.message)
-                    if (it.data.status == 1) {
-                        viewModel.refreshData()
-                    }
-                }
-
-            }
-
-            is EResult.Error -> {
-                LaunchedEffect(Unit) {
-                    onToast.invoke(it.exception.message.toString())
-                }
-
-            }
-
-            else -> {}
-        }
+    if (showInputDialog) {
+        InputDialog(onDismiss = {
+            showInputDialog = false
+        }, onDone = {
+            showInputDialog = false
+            viewModel.onLeaveApproved(rejectedId, rejectedapprovalStatus, it)
+        })
     }
 }
 
 @Composable
 private fun LeavesScreenInternal(
+    isMyTeam: Boolean,
     toolbarTitle: String,
     state: UIState,
+    leavesDialogState: LeavesDialogState?,
     selectedMonth: Int,
     selectedYear: Int,
     onUpClick: () -> Unit,
     retry: () -> Unit,
     onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
     onReject: (id: String, approvalStatus: String, message: String) -> Unit,
+    onDelete: (id: String, status: String) -> Unit,
     onSelectMonth: (Int) -> Unit,
     onSelectYear: (Int) -> Unit,
+    dismissDialog: () -> Unit,
 ) {
+
     Scaffold(
         topBar = {
             TopBar(title = toolbarTitle, onUpClick = onUpClick)
@@ -154,20 +147,36 @@ private fun LeavesScreenInternal(
                     currentYear = selectedYear,
                     onApprove = onApprove,
                     onReject = onReject,
-                    onMonthYearChange = { month, year ->
-                        onSelectMonth.invoke(month)
-                        onSelectYear.invoke(year)
+                    onDelete = onDelete,
+                    isMyTeam = isMyTeam,
+                    onMonthYearChange = { newMonth, newYear ->
+                        onSelectMonth.invoke(newMonth)
+                        onSelectYear.invoke(newYear)
                     })
             }
 
             is UIState.Error -> {
                 ErrorScreen(state.message) {
-                    retry.invoke()
+                    retry()
                 }
             }
+        }
 
+        leavesDialogState?.let {
+            LeavesProgressDialog(it) { refresh ->
+                // Handle dialog dismiss
+                dismissDialog.invoke()
+                if (refresh) {
+                    retry()
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun DialogWindow() {
+
 }
 
 
@@ -177,8 +186,10 @@ private fun SuccessLayout(
     leaveDataList: List<LeaveData>,
     currentMonth: Int,
     currentYear: Int,
+    isMyTeam: Boolean,
     onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
     onReject: (id: String, approvalStatus: String, message: String) -> Unit,
+    onDelete: (id: String, status: String) -> Unit,
     onMonthYearChange: (Int, Int) -> Unit
 ) {
     var selectedFilter by remember { mutableStateOf("All") }
@@ -209,7 +220,7 @@ private fun SuccessLayout(
 
         FilterDropdown(selectedFilter) { selectedFilter = it }
         Spacer(modifier = Modifier.height(16.dp))
-        LeaveRequestList(filteredLeaveDataList, onApprove, onReject)
+        LeaveRequestList(filteredLeaveDataList, isMyTeam, onApprove, onReject, onDelete)
     }
 }
 
@@ -287,24 +298,28 @@ fun FilterDropdown(selectedFilter: String, onFilterSelected: (String) -> Unit) {
 }
 
 @Composable
-fun LeaveRequestList(
+private fun LeaveRequestList(
     leaveRequests: List<LeaveData>,
+    isMyTeam: Boolean,
     onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
-    onReject: (id: String, approvalStatus: String, message: String) -> Unit
+    onReject: (id: String, approvalStatus: String, message: String) -> Unit,
+    onDelete: (id: String, status: String) -> Unit
 ) {
     LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
         items(leaveRequests.size) { index ->
-            LeaveRequestCard(leaveRequests[index], onApprove, onReject)
+            LeaveRequestCard(leaveRequests[index], isMyTeam, onApprove, onReject, onDelete)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-fun LeaveRequestCard(
+private fun LeaveRequestCard(
     leaveData: LeaveData,
+    isMyTeam: Boolean,
     onApprove: (id: String, approvalStatus: String, message: String) -> Unit,
-    onReject: (id: String, approvalStatus: String, message: String) -> Unit
+    onReject: (id: String, approvalStatus: String, message: String) -> Unit,
+    onDelete: (id: String, status: String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -341,43 +356,47 @@ fun LeaveRequestCard(
         Text(text = leaveData.reason)
         Spacer(modifier = Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
-            Button(
-                onClick = { onApprove(leaveData.id, "1", "Your Leave has been approved !!") },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
-            ) {
-                Text(text = "Approve")
+            if (isMyTeam && leaveData.approvalStatus == "3") {
+                Button(
+                    onClick = { onApprove(leaveData.id, "1", "Your Leave has been approved !!") },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                ) {
+                    Text(text = "Approve")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        onReject(
+                            leaveData.id,
+                            "2",
+                            "Sorry, Your Leave has been Rejected !!"
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+                ) {
+                    Text(text = "Reject")
+                }
+            } else if (!isMyTeam && leaveData.approvalStatus == "3") {
+                // self deletable leave
+                if (leaveData.approvalStatusText.equals("Pending", true)) {
+                    Button(
+                        onClick = { onDelete(leaveData.id, "1") },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+                    ) {
+                        Text(text = "Delete")
+                    }
+                }
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = { onReject(leaveData.id, "2", "Sorry, Your Leave has been Rejected !!") },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
-            ) {
-                Text(text = "Reject")
-            }
-        }
-    }
-}
 
-private fun getLeaveType(type: String): String {
-    return when (type) {
-        "1" -> "Casual Leave"
-        "2" -> "Sick Leave"
-        "3" -> "Planned Leave"
-        else -> "Other"
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewLeaveScreen() {
-    val navController = rememberNavController()
-    LeavesScreen(teamStatus = "1", navController = navController)
+    LeavesScreen(teamStatus = "1")
 }
-
-private fun getLeaveList(): List<LeaveData> {
-    return emptyList()
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -400,19 +419,4 @@ private fun TopBar(
             }
         },
     )
-}
-
-fun String.toColorOrNull(): Color? {
-    return try {
-        Color(android.graphics.Color.parseColor(this))
-    } catch (e: IllegalArgumentException) {
-        null
-    }
-}
-
-enum class LeaveStatus(val color: Color, val label: String) {
-    Pending(Color(0xFFFFA500), "Pending"),
-    Approved(Color(0xFF4CAF50), "Approved"),
-    Rejected(Color(0xFFF44336), "Rejected"),
-    Cancelled(Color(0xFF8B4513), "Cancelled")
 }
