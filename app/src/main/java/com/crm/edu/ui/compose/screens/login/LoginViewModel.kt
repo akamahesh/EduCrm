@@ -26,6 +26,9 @@ class LoginViewModel @Inject constructor(
     private val _updateLogoImage = MutableStateFlow<String?>(null)
     val updateLogoImage: StateFlow<String?> = _updateLogoImage.asStateFlow()
 
+    private val _showDialogEvent = MutableStateFlow(false)
+    val showDialogEvent: StateFlow<Boolean> = _showDialogEvent
+
     init {
         getLogoFromAppConfig()
     }
@@ -48,6 +51,7 @@ class LoginViewModel @Inject constructor(
                     is EResult.Error -> {
                         _loginState.value =
                             LoginUiState.Error(it.exception.message ?: "Unknown error")
+                        triggerDialog()
                     }
 
                     else -> {}
@@ -60,6 +64,14 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _updateLogoImage.value = getLogoFromAppConfigUseCase.execute()
         }
+    }
+
+    fun triggerDialog() {
+        _showDialogEvent.value = true
+    }
+
+    fun onDialogDismissed() {
+        _showDialogEvent.value = false
     }
 }
 

@@ -1,8 +1,7 @@
-package com.crm.edu.compose.screens
+package com.crm.edu.ui.compose.screens.login
 
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,12 +40,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
-import com.crm.edu.R
 import com.crm.edu.ui.compose.Screen
-import com.crm.edu.ui.compose.screens.login.LoginUiState
-import com.crm.edu.ui.compose.screens.login.LoginViewModel
 import com.skydoves.landscapist.glide.GlideImage
-import com.skydoves.landscapist.glide.GlideRequestType
 
 
 @Composable
@@ -59,7 +54,8 @@ fun LoginScreen(navController: NavHostController) {
     var password by remember { mutableStateOf("123456") }
     var emailError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
-
+    val showDialogEvent by loginViewModel.showDialogEvent.collectAsState()
+    var dialogMessage :String? by remember { mutableStateOf("-") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -101,7 +97,7 @@ fun LoginScreen(navController: NavHostController) {
             value = email,
             onValueChange = {
                 email = it
-                emailError = !isValidEmail(it)
+                //emailError = !isValidEmail(it)
             },
             label = { Text("Email") },
             isError = emailError,
@@ -124,7 +120,7 @@ fun LoginScreen(navController: NavHostController) {
             value = password,
             onValueChange = {
                 password = it
-                passwordError = it.isEmpty()
+                //passwordError = it.isEmpty()
             },
             label = { Text("Password") },
             isError = passwordError,
@@ -164,8 +160,6 @@ fun LoginScreen(navController: NavHostController) {
         }
 
         is LoginUiState.Success -> {
-            val message = (loginState as LoginUiState.Success).message
-            Toast.makeText(LocalContext.current, message, Toast.LENGTH_SHORT).show()
             navController.navigate(Screen.Home.route) {
                 popUpTo(Screen.Login.route) {
                     inclusive = true
@@ -174,18 +168,38 @@ fun LoginScreen(navController: NavHostController) {
         }
 
         is LoginUiState.Error -> {
-            val message = (loginState as LoginUiState.Error).message
-            Toast.makeText(LocalContext.current, message, Toast.LENGTH_SHORT).show()
+            dialogMessage = (loginState as LoginUiState.Error).message
         }
 
         else -> {
             // Show idle state
         }
     }
+
+    SimpleMessageDialog(showDialog = showDialogEvent, message = dialogMessage?: "Something went wrong") { loginViewModel.onDialogDismissed() }
 }
 
 fun isValidEmail(email: String): Boolean {
-    return email.isEmpty() || PatternsCompat.EMAIL_ADDRESS.matcher(email).matches()
+    return email.isNotEmpty() && PatternsCompat.EMAIL_ADDRESS.matcher(email).matches()
+}
+
+@Composable
+fun SimpleMessageDialog(
+    showDialog: Boolean,
+    message: String,
+    onDismiss: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            text = { Text(message) },
+            confirmButton = {
+                Button(onClick = onDismiss) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 }
 
 @Preview(showBackground = true)

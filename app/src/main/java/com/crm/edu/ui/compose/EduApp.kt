@@ -5,8 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.crm.edu.compose.screens.LoginScreen
 import com.crm.edu.ui.compose.screens.home.HomeScreen
+import com.crm.edu.ui.compose.screens.login.LoginScreen
 import com.crm.edu.ui.compose.screens.splash.SplashScreen
 
 @Composable
