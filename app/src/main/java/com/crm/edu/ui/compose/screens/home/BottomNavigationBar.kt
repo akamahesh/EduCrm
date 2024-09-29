@@ -28,7 +28,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.crm.edu.ui.compose.Screen
-import com.crm.edu.ui.compose.screens.CallManagerScreen
 import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
 import com.crm.edu.ui.compose.screens.calendar.CalendarScreen
 import com.crm.edu.ui.compose.screens.calllogs.CallLogsScreen
