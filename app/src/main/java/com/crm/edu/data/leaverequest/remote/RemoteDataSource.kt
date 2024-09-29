@@ -13,13 +13,15 @@ class RemoteDataSource @Inject constructor(private val leaveRequestApi: LeaveReq
         isHalfDay: Int,
         halfDayType: Int,
     ): LeaveRequestResponseDTO {
-        val requestBody = mapOf<String, String?>(
+        val requestBody = mutableMapOf<String, String?>(
             "leave_type" to leaveType,
             "from_date" to fromDate,
             "to_date" to toDate,
-            "is_half_day" to isHalfDay.toString(),
-            "halfday_type" to halfDayType.toString()
         )
+        if (isHalfDay == 1) {
+            requestBody["is_half_day"] = isHalfDay.toString()
+            requestBody["halfday_type"] = halfDayType.toString()
+        }
         return leaveRequestApi.leaveRequest(requestBody)
     }
 

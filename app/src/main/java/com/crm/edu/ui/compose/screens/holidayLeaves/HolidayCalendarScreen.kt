@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -138,7 +139,8 @@ private fun HolidayRow(holiday: HolidayData) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .background(holiday.colour.toColorOrDefault(), shape = RoundedCornerShape(8.dp)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -146,18 +148,24 @@ private fun HolidayRow(holiday: HolidayData) {
         Text(
             text = holidayDate,
             fontSize = 12.sp,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp)
         )
         Text(
             text = holiday.holidayName,
             fontSize = 12.sp,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically)
         )
         Text(
             text = holiday.holidayType,
-            color = holiday.colour.toColorOrDefault(),
+//            color = holiday.colour.toColorOrDefault(),
             fontSize = 10.sp,
-            modifier = Modifier.weight(0.5f)
+            modifier = Modifier
+                .weight(0.5f)
+                .align(Alignment.CenterVertically)
         )
     }
 }
@@ -195,43 +203,21 @@ private fun HeaderRow() {
 
 @Composable
 private fun SuccessHolidayLayout(padding: PaddingValues, holidays: List<HolidayData>) {
-    Box(
+    Column(
         modifier = Modifier
+            .fillMaxSize()
             .padding(padding)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            HeaderRow()
-            LazyColumn {
-                items(holidays) { holiday ->
-                    HolidayRow(holiday)
-                    Divider()
-                }
+        HeaderRow()
+        LazyColumn {
+            items(holidays) { holiday ->
+                HolidayRow(holiday)
+                Divider()
             }
-            Spacer(modifier = Modifier.height(16.dp))
         }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
-/*@Preview
-@Composable
-private fun HolidayCalendarScreenPreview(
-    @PreviewParameter(HolidayCalendarScreenPreviewParamProvider::class) optionItems: List<HolidayData>
-) {
-    HolidayCalendarScreenInternal(HolidayData = optionItems)
-}
-
-private class HolidayCalendarScreenPreviewParamProvider :
-    PreviewParameterProvider<List<HolidayData>> {
-
-    override val values: Sequence<List<Holiday>> =
-        sequenceOf(
-            getHolidayItems()
-        )
-}*/
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -256,7 +242,7 @@ private fun HolidayTopBar(
     )
 }
 
-fun String.toColorOrDefault(defaultColor: Color = Color.Black): Color {
+fun String.toColorOrDefault(defaultColor: Color = Color.White): Color {
     return try {
         if (this.isNotEmpty()) {
             Color(android.graphics.Color.parseColor(this))

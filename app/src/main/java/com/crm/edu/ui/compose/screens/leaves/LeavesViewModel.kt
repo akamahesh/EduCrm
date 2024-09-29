@@ -5,7 +5,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.crm.edu.core.EResult
-import com.crm.edu.data.leaves.ApproveLeaveData
 import com.crm.edu.data.leaves.LeaveData
 import com.crm.edu.data.leaves.LeaveRepository
 import com.crm.edu.ui.compose.screens.calendar.utils.getCurrentMonthYear
@@ -27,21 +26,20 @@ class LeavesViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
     internal val uiState: StateFlow<UIState> get() = _uiState
 
+    private val _LeavesDialogState = MutableStateFlow<LeavesDialogState?>(null)
+    internal val leavesDialogState: StateFlow<LeavesDialogState?> get() = _LeavesDialogState
+
     val selectedMonth = MutableStateFlow(getCurrentMonthYear().first)
     val selectedYear = MutableStateFlow(getCurrentMonthYear().second)
-
-    private val _leaveApprovalState =
-        MutableStateFlow<EResult<ApproveLeaveData>?>(null)
-    val leaveApprovalState: StateFlow<EResult<ApproveLeaveData>?> get() = _leaveApprovalState
 
     init {
         Log.d("EduLogs", "LeavesViewModel teamStatus : $teamStatus")
         fetchLeaveRequests(teamStatus)
     }
 
-    fun fetchLeaveRequests(teamStatus: String) {
+    private fun fetchLeaveRequests(teamStatus: String) {
         viewModelScope.launch {
-            repository.getLeaveData(teamStatus, selectedMonth.value, selectedYear.value)
+            repository.getLeaveData(teamStatus, selectedMonth.value + 1, selectedYear.value)
                 .collect { result ->
                 Log.d("EduLogs", "fetchLeaveRequests: $result")
                 when (result) {
@@ -70,8 +68,49 @@ class LeavesViewModel @Inject constructor(
     fun onLeaveApproved(id: String, approvalStatus: String, message: String) {
         viewModelScope.launch {
             repository.approveLeave(id, approvalStatus, message).collect { result ->
-                Log.d("EduLogs", "onLeaveApproved: $result")
-                _leaveApprovalState.value = result
+                when (result) {
+                    is EResult.Loading -> {
+                        _LeavesDialogState.value = LeavesDialogState.Loading
+                    }
+
+                    is EResult.Success -> {
+                        _LeavesDialogState.value = LeavesDialogState.Success(result.data.message, true)
+                    }
+
+                    is EResult.Error -> {
+                        _LeavesDialogState.value =
+                            LeavesDialogState.Error(result.exception.message.toString(), false)
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    fun dismissDialog() {
+        _LeavesDialogState.value = null
+    }
+
+    fun onLeaveDeleted(id: String, status: String) {
+        viewModelScope.launch {
+            repository.deleteLeave(id, status).collect { result ->
+                when (result) {
+                    is EResult.Loading -> {
+                        _LeavesDialogState.value = LeavesDialogState.Loading
+                    }
+
+                    is EResult.Success -> {
+                        _LeavesDialogState.value = LeavesDialogState.Success(result.data.message, true)
+                    }
+
+                    is EResult.Error -> {
+                        _LeavesDialogState.value =
+                            LeavesDialogState.Error(result.exception.message.toString(), false)
+                    }
+
+                    else -> {}
+                }
             }
         }
     }
@@ -83,9 +122,17 @@ class LeavesViewModel @Inject constructor(
 }
 
 internal sealed class UIState {
-    object Loading : UIState()
+    data object Loading : UIState()
     data class Success(val data: LeavesDataState) : UIState()
     data class Error(val message: String) : UIState()
+
+}
+
+sealed class LeavesDialogState {
+    data object Loading : LeavesDialogState()
+    data class Success(val message: String, val shouldRefresh: Boolean) : LeavesDialogState()
+    data class Error(val message: String, val shouldRefresh: Boolean) : LeavesDialogState()
+
 }
 
 data class LeavesDataState(

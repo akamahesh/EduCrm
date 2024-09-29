@@ -17,4 +17,8 @@ interface LeavesApi {
     @FormUrlEncoded
     @POST("leave_apply_list")
     suspend fun approveLeave(@FieldMap(encoded = false) data: Map<String, String?>): ApproveLeaveResponseDTO
+
+    @FormUrlEncoded
+    @POST("leave_apply_list")
+    suspend fun deleteLeave(@FieldMap(encoded = false) data: Map<String, String?>): ApproveLeaveResponseDTO
 }

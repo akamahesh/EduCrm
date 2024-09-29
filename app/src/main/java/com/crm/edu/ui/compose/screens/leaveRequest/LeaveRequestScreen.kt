@@ -5,7 +5,6 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.util.Log
 import android.widget.DatePicker
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,28 +47,51 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.crm.edu.R
+import com.crm.edu.data.leaverequest.remote.LeaveType
 import java.util.Calendar
 
 @Composable
 fun LeaveRequestScreen(
-    navController: NavHostController,
     viewModel: LeaveRequestViewModel = hiltViewModel(),
     onUpClick: () -> Unit = {},
 ) {
 
-    LeaveRequestScreenInterval(navController, viewModel, onUpClick)
+    val uiState by viewModel.uiState.collectAsState()
+    val dialogState by viewModel.dialogState.collectAsState()
+
+    LeaveRequestScreenInterval(
+        uiState,
+        dialogState,
+        onUpClick = onUpClick,
+        retry = viewModel::retry,
+        dismissDialog = viewModel::dismissDialog,
+        onFromDateChange = viewModel::onFromDateChange,
+        onToDateChange = viewModel::onToDateChange,
+        onLeaveTypeChange = viewModel::onLeaveTypeChange,
+        onHalfDayChange = viewModel::onHalfDayChange,
+        onHalfDayPeriodChange = viewModel::onHalfDayPeriodChange,
+        onReasonChange = viewModel::onReasonChange,
+        applyLeave = viewModel::applyLeave
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LeaveRequestScreenInterval(
-    navController: NavHostController,
-    viewModel: LeaveRequestViewModel,
-    onUpClick: () -> Unit
+    uiState: UIState,
+    dialogState: LeaveRequestDialogState?,
+    onUpClick: () -> Unit,
+    retry: () -> Unit,
+    dismissDialog: () -> Unit,
+    onFromDateChange: (String) -> Unit,
+    onToDateChange: (String) -> Unit,
+    onLeaveTypeChange: (LeaveType) -> Unit,
+    onHalfDayChange: (Boolean) -> Unit,
+    onHalfDayPeriodChange: (Int) -> Unit,
+    onReasonChange: (String) -> Unit,
+    applyLeave: () -> Unit,
 ) {
-    val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     Scaffold(
@@ -78,25 +100,39 @@ private fun LeaveRequestScreenInterval(
         },
     ) { padding ->
 
-        when (state) {
+        when (uiState) {
             is UIState.Loading -> {
                 LoadingLayout(padding)
             }
 
             is UIState.Success -> {
-                SuccessLayout(context, padding, (state as UIState.Success).data, viewModel)
+                SuccessLayout(
+                    padding,
+                    uiState.data,
+                    onFromDateChange,
+                    onToDateChange,
+                    onLeaveTypeChange,
+                    onHalfDayChange,
+                    onHalfDayPeriodChange,
+                    onReasonChange,
+                    applyLeave
+                )
             }
 
             is UIState.Error -> {
-                ErrorScreen((state as UIState.Error).message) {
-                    viewModel.retry()
+                ErrorScreen(uiState.message) {
+                    retry()
                 }
             }
+        }
 
-            is UIState.Exit -> {
-                val message = (state as UIState.Exit).message
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                onUpClick()
+        dialogState?.let {
+            LeavesRequestProgressDialog(it) { reset ->
+                dismissDialog.invoke()
+                if (reset) {
+                    // reset form
+                    retry()
+                }
             }
         }
 
@@ -137,12 +173,19 @@ private fun ErrorScreen(message: String, onRetry: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SuccessLayout(
-    context: Context,
     padding: PaddingValues,
     leaveRequestDetail: LeaveRequestState,
-    viewModel: LeaveRequestViewModel
+    onFromDateChange: (String) -> Unit,
+    onToDateChange: (String) -> Unit,
+    onLeaveTypeChange: (LeaveType) -> Unit,
+    onHalfDayChange: (Boolean) -> Unit,
+    onHalfDayPeriodChange: (Int) -> Unit,
+    onReasonChange: (String) -> Unit,
+    applyLeave: () -> Unit,
 ) {
 
+    var isFromDate by remember { mutableStateOf(true) }
+    val context: Context = LocalContext.current
     Log.d("EduLogs", "Leave Request Detail: $leaveRequestDetail")
     val calendar = Calendar.getInstance()
     val datePickerDialog = DatePickerDialog(
@@ -153,10 +196,10 @@ private fun SuccessLayout(
 
             val formattedDate = "$year-${formattedMonth}-$formattedDay"
             // Determine if setting "From" or "To" date based on UI interaction
-            if (viewModel.isSelectingFromDate) {
-                viewModel.onFromDateChange(formattedDate)
+            if (isFromDate) {
+                onFromDateChange(formattedDate)
             } else {
-                viewModel.onToDateChange(formattedDate)
+                onToDateChange(formattedDate)
             }
         },
         calendar.get(Calendar.YEAR),
@@ -179,7 +222,7 @@ private fun SuccessLayout(
             label = { Text("From") },
             trailingIcon = {
                 IconButton(onClick = {
-                    viewModel.isSelectingFromDate = true
+                    isFromDate = true
                     datePickerDialog.show()
                 }) {
                 Icon(Icons.Default.DateRange, contentDescription = null)
@@ -197,7 +240,7 @@ private fun SuccessLayout(
             label = { Text("To") },
             trailingIcon = {
                 IconButton(onClick = {
-                    viewModel.isSelectingFromDate = false
+                    isFromDate = false
                     datePickerDialog.show()
                 }) {
                 Icon(Icons.Default.DateRange, contentDescription = null)
@@ -235,7 +278,7 @@ private fun SuccessLayout(
                     DropdownMenuItem(
                         text = { Text(leaveType.name.toString()) },
                         onClick = {
-                            viewModel.onLeaveTypeChange(leaveType = leaveType)
+                            onLeaveTypeChange(leaveType)
                             leaveTypeExpanded = false
                         }
                     )
@@ -251,7 +294,7 @@ private fun SuccessLayout(
             ) {
                 Switch(
                     checked = leaveRequestDetail.halfDay,
-                    onCheckedChange = viewModel::onHalfDayChange
+                    onCheckedChange = { onHalfDayChange(it) }
                 )
                 Text("Half Day")
             }
@@ -262,13 +305,13 @@ private fun SuccessLayout(
                 ) {
                     RadioButton(
                         selected = leaveRequestDetail.halfDayPeriod == 1,
-                        onClick = { viewModel.onHalfDayPeriodChange(1) }
+                        onClick = { onHalfDayPeriodChange(1) }
                     )
                     Text("First Half")
 
                     RadioButton(
                         selected = leaveRequestDetail.halfDayPeriod == 2,
-                        onClick = { viewModel.onHalfDayPeriodChange(2) }
+                        onClick = { onHalfDayPeriodChange(2) }
                     )
                     Text("Second Half")
                 }
@@ -278,7 +321,7 @@ private fun SuccessLayout(
         // Reason Text Field
         OutlinedTextField(
             value = leaveRequestDetail.reason,
-            onValueChange = viewModel::onReasonChange,
+            onValueChange = { onReasonChange(it) },
             label = { Text("Reason") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -287,7 +330,7 @@ private fun SuccessLayout(
 
         // Apply Leave Button
         Button(
-            onClick = { viewModel.applyLeave() },
+            onClick = { applyLeave() },
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Text("Apply Leave")

@@ -28,7 +28,9 @@ class LeaveRequestViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
     internal val uiState: StateFlow<UIState> get() = _uiState
 
-    var isSelectingFromDate = true
+
+    private val _dialogState = MutableStateFlow<LeaveRequestDialogState?>(null)
+    internal val dialogState: StateFlow<LeaveRequestDialogState?> get() = _dialogState
 
     init {
         getLeaveDetails()
@@ -134,15 +136,29 @@ class LeaveRequestViewModel @Inject constructor(
                     Log.d("EduLogs", "applyLeave: $result")
                     when (result) {
                         is EResult.Loading -> {
-                            _uiState.value = UIState.Loading
+                            _dialogState.value = LeaveRequestDialogState.Loading
                         }
 
                         is EResult.Success -> {
-                            _uiState.value = UIState.Exit(result.data.message.toString())
+                            if (result.data.status == 1) {
+                                _dialogState.value = LeaveRequestDialogState.Success(
+                                    result.data.message.toString(),
+                                    true
+                                )
+                            } else {
+                                _dialogState.value = LeaveRequestDialogState.Error(
+                                    result.data.message.toString(),
+                                    false
+                                )
+                            }
+
                         }
 
                         is EResult.Error -> {
-                            _uiState.value = UIState.Error(result.exception.message.toString())
+                            _dialogState.value = LeaveRequestDialogState.Error(
+                                result.exception.message.toString(),
+                                false
+                            )
                         }
 
                         else -> {
@@ -158,7 +174,7 @@ class LeaveRequestViewModel @Inject constructor(
         getLeaveDetails()
     }
 
-    fun getDayCount(fromDate: String, toDate: String): Long {
+    private fun getDayCount(fromDate: String, toDate: String): Long {
         // Define the date format
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
@@ -167,19 +183,22 @@ class LeaveRequestViewModel @Inject constructor(
         val endDate = dateFormat.parse(toDate)
 
         // Calculate the difference in time (milliseconds)
-        val diffInMillis = endDate.time - startDate.time
+        val diffInMillis = (endDate?.time ?: 0) - (startDate?.time ?: 0)
 
         // Convert the difference in time to days
         return diffInMillis / (1000 * 60 * 60 * 24)
     }
 
+    fun dismissDialog() {
+        _dialogState.value = null
+    }
+
 }
 
 internal sealed class UIState {
-    object Loading : UIState()
+    data object Loading : UIState()
     data class Success(val data: LeaveRequestState) : UIState()
     data class Error(val message: String) : UIState()
-    data class Exit(val message: String) : UIState()
 }
 
 data class LeaveRequestState(
@@ -191,3 +210,10 @@ data class LeaveRequestState(
     val halfDayPeriod: Int = 1,
     val reason: String = ""
 )
+
+sealed class LeaveRequestDialogState {
+    data object Loading : LeaveRequestDialogState()
+    data class Success(val message: String, val reset: Boolean) : LeaveRequestDialogState()
+    data class Error(val message: String, val reset: Boolean) : LeaveRequestDialogState()
+
+}
