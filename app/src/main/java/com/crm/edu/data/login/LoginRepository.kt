@@ -27,8 +27,10 @@ class LoginRepository @Inject constructor(
             //save user data
             val userMap = getUserMap(remoteData)
             Log.d("EduLogs", "user data : \n $userMap")
-            localDataSource.saveUserData(userMap)
-            localDataSource.setUserLoggedIn(true)
+            if(remoteData.status == 1) {
+                localDataSource.saveUserData(userMap)
+                localDataSource.setUserLoggedIn(true)
+            }
             emit(EResult.Success(remoteData))
         } catch (ex: Exception) {
             emit(EResult.Error(ex))
