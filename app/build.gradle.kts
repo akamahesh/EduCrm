@@ -95,6 +95,7 @@ dependencies {
     implementation(libs.google.accompanist.permissions)
     implementation(libs.kizitonwose.calendar)
     implementation(libs.landscapist.glide)
+    implementation("androidx.compose.material:material-icons-extended")
     val composeBom = platform("androidx.compose:compose-bom:2024.09.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
