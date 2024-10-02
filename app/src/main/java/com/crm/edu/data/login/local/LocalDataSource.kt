@@ -23,4 +23,9 @@ class LocalDataSource @Inject constructor( val userPreferences: UserPreferences)
     suspend fun getUserFullName(): String {
         return userPreferences.getUserFullName()
     }
+
+    suspend fun resetUserData() {
+        userPreferences.clearAllUserData()
+    }
+
 }

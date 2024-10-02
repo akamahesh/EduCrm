@@ -41,6 +41,10 @@ class LoginRepository @Inject constructor(
         emit(EResult.Error(e))
     }
 
+    suspend fun resetUserData() {
+        localDataSource.resetUserData()
+    }
+
     suspend fun isUserLoggedIn(): Boolean{
         return localDataSource.isUserLoggedIn()
     }

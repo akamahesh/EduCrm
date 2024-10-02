@@ -6,5 +6,6 @@ import javax.inject.Inject
 class MarkLogoutUseCase  @Inject constructor(private val loginRepository: LoginRepository) {
     suspend fun execute(): Unit {
         loginRepository.markUserLogout()
+        loginRepository.resetUserData()
     }
 }

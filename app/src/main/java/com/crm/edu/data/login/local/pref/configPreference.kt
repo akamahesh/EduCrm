@@ -172,6 +172,12 @@ class UserPreferences(context: Context) {
         }
     }
 
+    suspend fun clearAllUserData() {
+        dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
+
     suspend fun setUserLoggedIn(loggedIn: Boolean) {
         dataStore.edit { preferences ->
             preferences[UserPreferencesKeys.IS_LOGGED_IN] = loggedIn
