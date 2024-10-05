@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -114,7 +115,11 @@ fun LoginScreen(navController: NavHostController) {
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.LightGray,
+                unfocusedContainerColor = Color.Transparent
+            )
         )
         if (emailError) {
             Text(
@@ -144,7 +149,11 @@ fun LoginScreen(navController: NavHostController) {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
                 }
-            }
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.LightGray,
+                unfocusedContainerColor = Color.Transparent
+            )
         )
         if (passwordError) {
             Text(
