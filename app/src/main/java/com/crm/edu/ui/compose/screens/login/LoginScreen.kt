@@ -2,6 +2,7 @@ package com.crm.edu.ui.compose.screens.login
 
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,13 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,12 +38,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.util.PatternsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -69,6 +73,7 @@ fun LoginScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFF007273))
             .padding(16.dp),
         verticalArrangement = Arrangement.Top
     ) {
@@ -78,9 +83,10 @@ fun LoginScreen(navController: NavHostController) {
 
         Box(
             modifier = Modifier
-                .heightIn(min = 100.dp, max = 500.dp)
-                .aspectRatio(1f),
-            contentAlignment = Alignment.Center
+                .height(250.dp)
+                .fillMaxWidth()
+                .padding(top = 30.dp),
+            contentAlignment = Alignment.TopCenter
         ) {
             logoImageUrl?.let {
                 GlideImage(
@@ -103,6 +109,7 @@ fun LoginScreen(navController: NavHostController) {
             }
         }
 
+        Spacer(modifier = Modifier.height(10.dp))
         OutlinedTextField(
             value = email,
             onValueChange = {
@@ -116,10 +123,18 @@ fun LoginScreen(navController: NavHostController) {
                 imeAction = ImeAction.Next
             ),
             modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(color = Color.White) ,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.LightGray,
-                unfocusedContainerColor = Color.Transparent
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedBorderColor = Color.LightGray,
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White,
+                focusedLabelColor  = Color.White,
+                unfocusedLabelColor =  Color.White,
+
             )
+
         )
         if (emailError) {
             Text(
@@ -143,17 +158,24 @@ fun LoginScreen(navController: NavHostController) {
                 imeAction = ImeAction.Done
             ),
             modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(color = Color.White) ,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
+                    Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password", tint = Color.White)
                 }
             },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.LightGray,
-                unfocusedContainerColor = Color.Transparent
-            )
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedBorderColor = Color.LightGray,
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White,
+                focusedLabelColor  = Color.White,
+                unfocusedLabelColor =  Color.White,
+
+                )
         )
         if (passwordError) {
             Text(
@@ -163,7 +185,7 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier.padding(start = 16.dp)
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(30.dp))
         Button(
             onClick = {
                 emailError = !isValidEmail(email)
@@ -172,9 +194,11 @@ fun LoginScreen(navController: NavHostController) {
                     loginViewModel.login(email, password)
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(start = 100.dp, end = 100.dp),
+            colors = ButtonDefaults.buttonColors(containerColor =Color(0xFFFFFF00), contentColor = Color.Black)
         ) {
-            Text("Login")
+            Text(text="Login",fontSize = 18.sp)
+
 
         }
     }
