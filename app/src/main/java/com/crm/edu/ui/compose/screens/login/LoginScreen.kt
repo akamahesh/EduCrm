@@ -73,7 +73,6 @@ fun LoginScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF007273))
             .padding(16.dp),
         verticalArrangement = Arrangement.Top
     ) {
@@ -85,7 +84,7 @@ fun LoginScreen(navController: NavHostController) {
             modifier = Modifier
                 .height(250.dp)
                 .fillMaxWidth()
-                .padding(top = 30.dp),
+                .padding(top = 24.dp),
             contentAlignment = Alignment.TopCenter
         ) {
             logoImageUrl?.let {
@@ -123,18 +122,7 @@ fun LoginScreen(navController: NavHostController) {
                 imeAction = ImeAction.Next
             ),
             modifier = Modifier.fillMaxWidth(),
-            textStyle = TextStyle(color = Color.White) ,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.White,
-                cursorColor = Color.White,
-                focusedLabelColor  = Color.White,
-                unfocusedLabelColor =  Color.White,
-
-            )
-
+            textStyle = TextStyle(color = Color(0xFF007273)) ,
         )
         if (emailError) {
             Text(
@@ -158,24 +146,14 @@ fun LoginScreen(navController: NavHostController) {
                 imeAction = ImeAction.Done
             ),
             modifier = Modifier.fillMaxWidth(),
-            textStyle = TextStyle(color = Color.White) ,
+            textStyle = TextStyle(color = Color(0xFF007273)) ,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password", tint = Color.White)
+                    Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password", tint = Color(0xFF007273))
                 }
             },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.White,
-                cursorColor = Color.White,
-                focusedLabelColor  = Color.White,
-                unfocusedLabelColor =  Color.White,
-
-                )
         )
         if (passwordError) {
             Text(
@@ -195,7 +173,7 @@ fun LoginScreen(navController: NavHostController) {
                 }
             },
             modifier = Modifier.fillMaxWidth().padding(start = 100.dp, end = 100.dp),
-            colors = ButtonDefaults.buttonColors(containerColor =Color(0xFFFFFF00), contentColor = Color.Black)
+            colors = ButtonDefaults.buttonColors(containerColor =Color(0xFF007273), contentColor = Color.White)
         ) {
             Text(text="Login",fontSize = 18.sp)
 
