@@ -2,7 +2,10 @@ package com.crm.edu.ui.compose.screens.calllogs
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.provider.CallLog
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -69,6 +72,7 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.bumptech.glide.Glide
@@ -88,13 +92,13 @@ import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 
 @Composable
-fun CallLogsScreen(navController: NavHostController, moveToLogin: () -> Unit ) {
+fun CallLogsScreen(navController: NavHostController, moveToLogin: () -> Unit,  onUpClick: () -> Unit,) {
     val callLogsViewModel = hiltViewModel<CallLogsViewModel>()
     val userNameDesignationState by callLogsViewModel.userNameDesignationState.collectAsState()
     val uiStateData by callLogsViewModel.callLogsUiState.collectAsState()
     val logoImageUrl by callLogsViewModel.updateLogoImage.collectAsState()
 
-    MainContent(userNameDesignationState,logoImageUrl) { callLogsViewModel.markLogout() }
+    MainContent(userNameDesignationState,logoImageUrl,{ callLogsViewModel.markLogout() }, onUpClick)
 
     when(uiStateData){
         is CallLogsUIState.moveToLogin -> {
@@ -107,7 +111,7 @@ fun CallLogsScreen(navController: NavHostController, moveToLogin: () -> Unit ) {
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-private fun MainContent(userNameDesignationState: NameDesignation, logoImageUrl:String?, logOut: () -> Unit) {
+private fun MainContent(userNameDesignationState: NameDesignation, logoImageUrl:String?, logOut: () -> Unit,onUpClick: () -> Unit) {
     val context = LocalContext.current
     Column(
         modifier = Modifier
@@ -117,7 +121,7 @@ private fun MainContent(userNameDesignationState: NameDesignation, logoImageUrl:
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        CallLogPermission(context, userNameDesignationState, logoImageUrl, logOut)
+        CallLogPermission(context, userNameDesignationState, logoImageUrl, logOut, onUpClick)
     }
 }
 
@@ -127,7 +131,8 @@ fun CallLogPermission(
     context: Context,
     userNameDesignationState: NameDesignation,
     logoImageUrl:String?,
-    logOut: () -> Unit
+    logOut: () -> Unit,
+    onUpClick: () -> Unit
 ) {
     val readCallLogPermissionState =
         rememberPermissionState(permission = Manifest.permission.READ_CALL_LOG)
@@ -158,14 +163,25 @@ fun CallLogPermission(
                     "Read Call Log permission required for this feature to be available. " +
                             "Please grant the permission"
                 }
-                Text(textToShow)
-                Button(onClick = { readCallLogPermissionState.launchPermissionRequest() }) {
-                    Text("Request permission")
-                }
+                val onConfirm =
+                    if ((readCallLogPermissionState.status as PermissionStatus.Denied).shouldShowRationale) {
+                        {
+                            val intent =
+                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                }
+                            startActivity(context, intent, null)
+                        }
+                    } else {
+                        { readCallLogPermissionState.launchPermissionRequest() }
+                    }
+                PermissionMessageDialog(true, textToShow, onDismiss = onUpClick, onConfirm = onConfirm)
             }
         }
     }
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -519,7 +535,7 @@ fun displayList(context: Context,selectedValue:String) {
                 val durationNumber = contactInfo.duration?.toLongOrNull()
                 val imageId = when (contactInfo.type) {
                     CallLog.Calls.INCOMING_TYPE -> if (durationNumber != null && durationNumber > 0) R.drawable.ic_incoming_call else R.drawable.ic_miss_call
-                    CallLog.Calls.OUTGOING_TYPE -> if (durationNumber != null && durationNumber > 0) R.drawable.ic_outgoing_call else R.drawable.ic_miss_call
+                    CallLog.Calls.OUTGOING_TYPE -> R.drawable.ic_outgoing_call
                     CallLog.Calls.MISSED_TYPE -> R.drawable.ic_miss_call
                     CallLog.Calls.VOICEMAIL_TYPE -> R.drawable.ic_total_call
                     CallLog.Calls.REJECTED_TYPE -> R.drawable.ic_miss_call
@@ -616,5 +632,31 @@ fun ContactRow(
                 )
 
 
+    }
+
+}
+
+@Composable
+fun PermissionMessageDialog(
+    showDialog: Boolean,
+    message: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            text = { Text(message) },
+            confirmButton = {
+                Button(onClick = onConfirm) {
+                    Text("Allow")
+                }
+            },
+            dismissButton = {
+                Button(onClick = onDismiss) {
+                    Text("Deny")
+                }
+            }
+        )
     }
 }

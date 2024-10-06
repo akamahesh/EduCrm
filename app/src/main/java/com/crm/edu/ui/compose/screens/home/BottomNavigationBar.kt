@@ -1,6 +1,7 @@
 package com.crm.edu.ui.compose.screens.home
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -106,9 +107,7 @@ fun BottomNavigationBar(
             startDestination = if (showCallManager) Screen.CallManager.route else Screen.Dashboard.route
         ) {
             composable(route = Screen.CallManager.route) {
-                CallLogsScreen(navController) {
-                    moveToLogin()
-                }
+                CallLogsScreen(navController,moveToLogin) { (context as? Activity)?.finishAffinity()}
             }
 
             composable(route = Screen.Dashboard.route) {
