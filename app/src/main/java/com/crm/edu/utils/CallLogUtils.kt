@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.text.format.DateFormat
 import android.util.Log
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -292,7 +293,7 @@ object CallLogUtils {
         )
 
         var callCount = 0
-        var totalDuration = 0
+        var totalDuration = 0L
 
         cursor?.use {
             while (it.moveToNext()) {
@@ -308,12 +309,15 @@ object CallLogUtils {
     }
 
 
-    fun getCallStats(context: Context, selectedValue:String): Triple<CallStats, CallStats, CallStats> {
+    fun getCallStats(
+        context: Context,
+        selectedValue: String
+    ): Triple<CallStats, CallStats, CallStats> {
         val cursor = getCallLogCursor(context, selectedValue)
 
-        var receivedCallsStats = CallStats(0, 0, "")
-        var outgoingCallsStats = CallStats(0, 0, "")
-        var missedCallsStats = CallStats(0, 0, "")
+        val receivedCallsStats = CallStats(0, 0, "")
+        val outgoingCallsStats = CallStats(0, 0, "")
+        val missedCallsStats = CallStats(0, 0, "")
 
         cursor?.use {
             val numberIndex = it.getColumnIndex(CallLog.Calls.NUMBER)
@@ -322,23 +326,30 @@ object CallLogUtils {
 
             while (it.moveToNext()) {
                 val phoneNumber = it.getString(numberIndex)
-                val callDuration = it.getString(durationIndex)
+                val callDuration = it.getString(durationIndex).toLong()
                 val callType = it.getInt(typeIndex)
 
-                when (callType) {
-                    CallLog.Calls.INCOMING_TYPE -> {
+                when (getCallType(callType, callDuration)) {
+                    CustomCallType.INCOMING -> {
                         receivedCallsStats.count++
-                        receivedCallsStats.duration += callDuration.toInt()
+                        receivedCallsStats.duration += callDuration
                     }
-                    CallLog.Calls.OUTGOING_TYPE -> {
-                        outgoingCallsStats.count++
-                        outgoingCallsStats.duration += callDuration.toInt()
-                    }
-                    CallLog.Calls.MISSED_TYPE -> {
+
+                    CustomCallType.MISSED -> {
                         missedCallsStats.count++
                         missedCallsStats.duration += callDuration.toInt()
                     }
+
+                    CustomCallType.OUTGOING -> {
+                        outgoingCallsStats.count++
+                        outgoingCallsStats.duration += callDuration.toInt()
+                    }
+
+                    CustomCallType.OTHER -> {
+                        Timber.tag("CallType").d("Other : phoneNumber %s", phoneNumber)
+                    }
                 }
+
             }
         }
 
@@ -350,12 +361,34 @@ object CallLogUtils {
         return Triple(receivedCallsStats, outgoingCallsStats, missedCallsStats)
     }
 
-    fun getFormattedDuration(duration: Int): String? {
+
+    sealed class CustomCallType{
+        data object INCOMING : CustomCallType()
+        data object OUTGOING : CustomCallType()
+        data object MISSED : CustomCallType()
+        data object OTHER   : CustomCallType()
+    }
+
+    fun getCallType(callType: Int?, duration:Long=0): CustomCallType{
+        return when (callType) {
+            CallLog.Calls.INCOMING_TYPE -> if (duration > 0)  CustomCallType.INCOMING else  CustomCallType.MISSED
+            CallLog.Calls.OUTGOING_TYPE -> CustomCallType.OUTGOING
+            CallLog.Calls.MISSED_TYPE -> CustomCallType.MISSED
+            CallLog.Calls.VOICEMAIL_TYPE -> CustomCallType.OTHER
+            CallLog.Calls.REJECTED_TYPE ->CustomCallType.MISSED
+            CallLog.Calls.BLOCKED_TYPE -> CustomCallType.MISSED
+            CallLog.Calls.ANSWERED_EXTERNALLY_TYPE ->CustomCallType.OTHER
+            else -> CustomCallType.OTHER
+        }
+    }
+
+
+    fun getFormattedDuration(duration: Long): String? {
         val hours = duration / 3600
         val minutes = (duration % 3600) / 60
         val seconds = duration % 60
 
-        if (hours == 0 && minutes == 0 && seconds == 0) {
+        if (hours == 0L && minutes == 0L && seconds == 0L) {
             return null
         }
 
@@ -473,4 +506,4 @@ data class CallLogInfo(
     val formattedStartTimeNew: String?
 )
 
-data class CallStats(var count: Int, var duration: Int, var formattedDuration: String?)
+data class CallStats(var count: Int, var duration: Long, var formattedDuration: String?)

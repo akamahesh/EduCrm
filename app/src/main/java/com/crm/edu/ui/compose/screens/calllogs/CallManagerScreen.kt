@@ -146,7 +146,7 @@ fun CallLogPermission(
             var selectedOption by remember { mutableStateOf("Today") }
             DynamicSelectTextField(selectedOption, listOf("Today", "Yesterday", "Week"), "Select Time Range", { selectedValue -> selectedOption=selectedValue})
             Spacer(modifier = Modifier.height(4.dp))
-            displayList(context = context, selectedValue = selectedOption)
+            DisplayList(context = context, selectedValue = selectedOption)
             //AddDropdown(context,defaultSelectedValue)
             // displayList(context,defaultSelectedValue)
         }
@@ -520,15 +520,16 @@ fun Alert(
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun displayList(context: Context,selectedValue:String) {
-    val contactInfoList = CallLogUtils.readCalls(0, context,selectedValue)
+fun DisplayList(context: Context, selectedValue: String) {
+    val contactInfoList = CallLogUtils.readCalls(0, context, selectedValue)
 
     // on below line we are
     // creating a simple column
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .padding(bottom = 80.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LazyColumn {
@@ -538,22 +539,20 @@ fun displayList(context: Context,selectedValue:String) {
             }
             items(contactInfoList) { contactInfo ->
                 val durationNumber = contactInfo.duration?.toLongOrNull()
-                val imageId = when (contactInfo.type) {
-                    CallLog.Calls.INCOMING_TYPE -> if (durationNumber != null && durationNumber > 0) R.drawable.ic_incoming_call else R.drawable.ic_miss_call
-                    CallLog.Calls.OUTGOING_TYPE -> R.drawable.ic_outgoing_call
-                    CallLog.Calls.MISSED_TYPE -> R.drawable.ic_miss_call
-                    CallLog.Calls.VOICEMAIL_TYPE -> R.drawable.ic_total_call
-                    CallLog.Calls.REJECTED_TYPE -> R.drawable.ic_miss_call
-                    CallLog.Calls.BLOCKED_TYPE -> R.drawable.ic_miss_call
-                    CallLog.Calls.ANSWERED_EXTERNALLY_TYPE -> R.drawable.ic_total_call
-                    else -> R.drawable.ic_total_call
-                }
+                val imageId =
+                    when (CallLogUtils.getCallType(contactInfo.type, durationNumber ?: 0)) {
+                        CallLogUtils.CustomCallType.INCOMING -> R.drawable.ic_incoming_call
+                        CallLogUtils.CustomCallType.MISSED -> R.drawable.ic_miss_call
+                        CallLogUtils.CustomCallType.OUTGOING -> R.drawable.ic_outgoing_call
+                        CallLogUtils.CustomCallType.OTHER -> R.drawable.ic_total_call
+                    }
+
                 ContactRow(
                     image = painterResource(id = imageId), // Assuming you're using drawable resources
-                    name = contactInfo.name?:"Unknown",
-                    phoneNumber = contactInfo.number?:"..",
-                    callDate = contactInfo.formattedStartDateNew?:"-",
-                    callTime = contactInfo.formattedStartTimeNew?:"=",
+                    name = contactInfo.name ?: "Unknown",
+                    phoneNumber = contactInfo.number ?: "..",
+                    callDate = contactInfo.formattedStartDateNew ?: "-",
+                    callTime = contactInfo.formattedStartTimeNew ?: "=",
                 )
             }
         }
