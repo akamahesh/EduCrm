@@ -423,7 +423,7 @@ fun addHeader(context: Context, userNameDesignationState: NameDesignation, logoI
                     requestOptions = { RequestOptions().fitCenter()},
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp, 10.dp, 8.dp, 0.dp),
+                        .padding(8.dp, 4.dp, 8.dp, 4.dp),
                     loading = {
                         Box(modifier = Modifier.matchParentSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -433,9 +433,14 @@ fun addHeader(context: Context, userNameDesignationState: NameDesignation, logoI
             }
         }
 
-        Spacer(modifier = Modifier.width(4.dp))
-        IconButton(onClick = { isPopupVisible = true }) {
-            Icon(Icons.Default.MoreVert, contentDescription = "More options")
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            IconButton(onClick = { isPopupVisible = true },  modifier = Modifier.align(Alignment.CenterEnd)) {
+                Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+            }
         }
 
         if (isPopupVisible) {
@@ -446,14 +451,14 @@ fun addHeader(context: Context, userNameDesignationState: NameDesignation, logoI
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(56.dp, 16.dp, 26.dp, 16.dp),
+                        .padding(56.dp, 46.dp, 26.dp, 26.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .padding(16.dp)
                             .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                         horizontalAlignment = Alignment.Start
                     ) {
                         Text(
