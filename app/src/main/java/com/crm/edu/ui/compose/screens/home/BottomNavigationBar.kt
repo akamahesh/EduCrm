@@ -31,8 +31,8 @@ import androidx.navigation.navArgument
 import com.crm.edu.ui.compose.Screen
 import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
 import com.crm.edu.ui.compose.screens.calendar.CalendarScreen
-import com.crm.edu.ui.compose.screens.calllogs.CallLogsScreen
 import com.crm.edu.ui.compose.screens.calendar.tryouts.NewCalendarScreen
+import com.crm.edu.ui.compose.screens.calllogs.CallLogsScreen
 import com.crm.edu.ui.compose.screens.dashboard.DashboardScreen
 import com.crm.edu.ui.compose.screens.holidayLeaves.HolidayCalendarScreen
 import com.crm.edu.ui.compose.screens.leaveRequest.LeaveRequestScreen
@@ -115,7 +115,8 @@ fun BottomNavigationBar(
                     navController.navigate(route = route)
                 }, onUpClick = {
                     navController.navigateUp()
-                })
+                }, moveToLogin = moveToLogin
+                )
             }
 
             composable(route = Screen.Attendance.route) {
