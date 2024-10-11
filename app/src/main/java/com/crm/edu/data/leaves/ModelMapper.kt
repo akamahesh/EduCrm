@@ -20,6 +20,7 @@ fun LeaveDetailDTO.asEntity() = LeaveEntity(
     isAbsent = isAbsent,
     attendanceStatus = attendanceStatus,
     reason = reason,
+    message_ = message_,
     dates = dates,
     isHalfDay = isHalfDay,
     halfDayType = halfDayType,

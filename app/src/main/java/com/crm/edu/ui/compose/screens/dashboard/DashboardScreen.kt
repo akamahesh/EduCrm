@@ -19,20 +19,30 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -55,7 +65,8 @@ fun DashboardScreen(
     DashboardScreenInternal(
         dashboardItems = dashboardItems,
         onOptionClick = onOptionClick,
-        onUpClick = onUpClick
+        onUpClick = onUpClick,
+        logout = { viewModel.logout() }
     )
 }
 
@@ -64,10 +75,11 @@ private fun DashboardScreenInternal(
     dashboardItems: List<DashboardItem>,
     onOptionClick: (String) -> Unit = {},
     onUpClick: () -> Unit = {},
+    logout: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
-            DashBoardTopBar(onUpClick = onUpClick)
+            DashBoardTopBar(onUpClick = onUpClick, logOut = logout)
         },
     ) { padding ->
         Box(
@@ -97,14 +109,32 @@ private fun DashboardScreenInternal(
 @Composable
 private fun DashBoardTopBar(
     onUpClick: () -> Unit,
+    logOut: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showMenu by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = {
             Text(stringResource(id = R.string.dashboard_title))
         },
+        actions = {
+            // Menu Icon
+            IconButton(onClick = { showMenu = !showMenu }) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_more_vert_24), // Your menu icon
+                    contentDescription = "Menu"
+                )
+            }
+        },
         modifier = modifier.statusBarsPadding(),
     )
+
+    if (showMenu) {
+        LogoutAlert(showDialog = showMenu,
+            logOut = logOut,
+            onDismiss = { showMenu = false })
+    }
 }
 
 private fun getAllDashboardOptions(): List<DashboardItem> {
@@ -116,19 +146,13 @@ private fun getAllDashboardOptions(): List<DashboardItem> {
             color = Color.Green
         ),
         DashboardItem(
-            name = "Leave Request",
-            route = Screen.LeaveRequest.route,
-            drawableRes = R.drawable.ic_attendance_multi_color,
-            color = Color.Blue
-        ),
-        DashboardItem(
-            name = "Holidays Calendar",
+            name = "Holiday Calendar",
             route = Screen.HolidayCalendar.route,
             drawableRes = R.drawable.ic_holiday_leave,
             color = Color.Cyan
         ),
         DashboardItem(
-            name = "Leaves",
+            name = "Leave",
             route = Screen.LeavesOptions.route,
             drawableRes = R.drawable.ic_leave_request,
             color = Color.DarkGray
@@ -204,5 +228,34 @@ private fun MainItem(text: String, drawableRes: Int, color: Color, onClick: () -
                 style = MaterialTheme.typography.titleSmall
             )
         }
+    }
+}
+
+@Composable
+fun LogoutAlert(
+    showDialog: Boolean,
+    logOut: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    if (showDialog) {
+        AlertDialog(
+            title = {
+                Text(text = "Logout", color = Color.Black)
+            },
+            text = {
+                Text(text = "Are you sure you want to Logout?", color = Color.Black)
+            },
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = logOut) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

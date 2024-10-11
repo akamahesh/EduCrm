@@ -252,6 +252,7 @@ private fun AttendanceCalendarScreen(
         if (!staffName.isNullOrBlank()) {
             Text(
                 text = staffName.toString(),
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .background(color = Color.LightGray.copy(alpha = 0.8f)) // 50% alpha
                     .padding(8.dp)
