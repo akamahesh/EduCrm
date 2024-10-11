@@ -17,6 +17,7 @@ data class LeaveData(
     val isAbsent: String,
     val attendanceStatus: String,
     val reason: String,
+    val message_: String,
     val dates: String,
     val isHalfDay: String,
     val halfDayType: String,

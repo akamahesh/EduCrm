@@ -131,6 +131,12 @@ private fun getLeaveOptions(): List<AttendanceOptionItem> {
             drawableRes = R.drawable.ic_attendance_multi_color,
             color = Color.Blue
         ),
+        AttendanceOptionItem(
+            name = "Leave Request",
+            route = Screen.LeaveRequest.route,
+            drawableRes = R.drawable.ic_attendance_multi_color,
+            color = Color.Blue
+        ),
     )
     return optionItems
 }

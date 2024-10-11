@@ -29,6 +29,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -43,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -186,6 +188,10 @@ private fun SuccessLayout(
 
     var isFromDate by remember { mutableStateOf(true) }
     val context: Context = LocalContext.current
+    var isValidFromDate by remember { mutableStateOf(false) }
+    var isValidToDate by remember { mutableStateOf(false) }
+    var isValidReason by remember { mutableStateOf(false) }
+
     Log.d("EduLogs", "Leave Request Detail: $leaveRequestDetail")
     val calendar = Calendar.getInstance()
     val datePickerDialog = DatePickerDialog(
@@ -198,8 +204,10 @@ private fun SuccessLayout(
             // Determine if setting "From" or "To" date based on UI interaction
             if (isFromDate) {
                 onFromDateChange(formattedDate)
+                isValidFromDate = formattedDate.isNotEmpty()
             } else {
                 onToDateChange(formattedDate)
+                isValidToDate = formattedDate.isNotEmpty()
             }
         },
         calendar.get(Calendar.YEAR),
@@ -212,13 +220,14 @@ private fun SuccessLayout(
             .padding(padding)
             .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
         // From Date Picker (Placeholder for simplicity)
         OutlinedTextField(
             value = leaveRequestDetail.fromDate,
-            onValueChange = { },
+            onValueChange = {},
+            isError = !isValidFromDate,
             label = { Text("From") },
             trailingIcon = {
                 IconButton(onClick = {
@@ -232,11 +241,18 @@ private fun SuccessLayout(
             modifier = Modifier
                 .fillMaxWidth()
         )
+        if (!isValidFromDate) {
+            Text(
+                text = "Please enter valid date", color = Color.Red,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
 
         // To Date Picker (Placeholder for simplicity)
         OutlinedTextField(
             value = leaveRequestDetail.toDate,
             onValueChange = {},
+            isError = !isValidToDate,
             label = { Text("To") },
             trailingIcon = {
                 IconButton(onClick = {
@@ -251,6 +267,12 @@ private fun SuccessLayout(
                 .fillMaxWidth()
 
         )
+        if (!isValidToDate) {
+            Text(
+                text = "Please enter valid date", color = Color.Red,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
 
         // Leave Type Dropdown
         var leaveTypeExpanded by remember { mutableStateOf(false) }
@@ -321,17 +343,29 @@ private fun SuccessLayout(
         // Reason Text Field
         OutlinedTextField(
             value = leaveRequestDetail.reason,
-            onValueChange = { onReasonChange(it) },
+            onValueChange = {
+                onReasonChange(it)
+                isValidReason = it.isNotEmpty()
+            },
+
+            isError = !isValidReason,
             label = { Text("Reason") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(100.dp)
         )
+        if (!isValidReason) {
+            Text(
+                text = "Please enter a valid reason", color = Color.Red,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
 
         // Apply Leave Button
         Button(
             onClick = { applyLeave() },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            enabled = isValidReason && isValidFromDate && isValidToDate
         ) {
             Text("Apply Leave")
         }

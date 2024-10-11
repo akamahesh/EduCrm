@@ -184,14 +184,17 @@ private fun TeamMemberItem(
                 style = MaterialTheme.typography.labelSmall
             )
         }
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = member.time,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier
-                .background(Color(0xFFF2F2F2))
-                .padding(horizontal = 4.dp, vertical = 2.dp)
-        )
+        if (member.time.isNotEmpty()) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = member.time,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier
+                    .background(Color(0xFFF2F2F2))
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
+            )
+        }
+
     }
 }
 

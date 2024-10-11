@@ -347,13 +347,12 @@ private fun LeaveRequestCard(
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = "From: ${leaveData.fromDate}")
         Text(text = "To: ${leaveData.toDate}")
-        val leaveTypeName =
-            leaveData.leaveTypeName + if (leaveData.isHalfDay == "1") ", ${leaveData.halfDayTypeName}" else ""
+        val leaveTypeName = leaveData.halfDayTypeName
 
         Text(text = "Leave Type: $leaveTypeName")
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = "Reason:", fontWeight = FontWeight.SemiBold)
-        Text(text = leaveData.reason)
+        Text(text = leaveData.message_)
         Spacer(modifier = Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             if (isMyTeam && leaveData.approvalStatus == "3") {

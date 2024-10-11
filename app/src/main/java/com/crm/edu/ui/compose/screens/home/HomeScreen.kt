@@ -64,7 +64,6 @@ private fun bottomNavigationItems(homeData: HomeBottomData?): List<BottomNavigat
                 selectedIcon = Icons.Filled.Call,
                 unselectedIcon = Icons.Outlined.Call,
                 hasUpdate = false,
-                badgeCount = 4
             )
         )
     }

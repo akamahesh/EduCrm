@@ -75,12 +75,26 @@ private fun HolidayCalendarScreenInternal(
 
             is EResult.SuccessAndLoading -> {
                 val holidays = state.data
-                SuccessHolidayLayout(padding, holidays)
+                if (holidays.isEmpty()) {
+                    ErrorScreen(
+                        "No Holiday data available",
+                        showRetry = false,
+                        onRetry = { onRetry() })
+                } else {
+                    SuccessHolidayLayout(padding, holidays)
+                }
             }
 
             is EResult.Success -> {
                 val holidays = state.data
-                SuccessHolidayLayout(padding, holidays)
+                if (holidays.isEmpty()) {
+                    ErrorScreen(
+                        "No Holiday data available",
+                        showRetry = false,
+                        onRetry = { onRetry() })
+                } else {
+                    SuccessHolidayLayout(padding, holidays)
+                }
             }
 
             is EResult.Error -> {
@@ -108,7 +122,7 @@ private fun LoadingLayout(paddingValues: PaddingValues = PaddingValues()) {
 }
 
 @Composable
-private fun ErrorScreen(message: String, onRetry: () -> Unit) {
+private fun ErrorScreen(message: String, showRetry: Boolean = true, onRetry: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -116,8 +130,10 @@ private fun ErrorScreen(message: String, onRetry: () -> Unit) {
     ) {
         Text(text = message)
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRetry) {
-            Text(text = "Retry")
+        if (showRetry) {
+            Button(onClick = onRetry) {
+                Text(text = "Retry")
+            }
         }
     }
 }
@@ -208,7 +224,7 @@ private fun SuccessHolidayLayout(padding: PaddingValues, holidays: List<HolidayD
             .fillMaxSize()
             .padding(padding)
     ) {
-        HeaderRow()
+//        HeaderRow()
         LazyColumn {
             items(holidays) { holiday ->
                 HolidayRow(holiday)

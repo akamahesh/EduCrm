@@ -3,9 +3,11 @@
 package com.crm.edu.ui.compose.screens.markAttendance
 
 
+import android.content.Intent
 import android.location.Location
+import android.net.Uri
+import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,12 +56,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.crm.edu.R
 import com.crm.edu.core.EResult
 import com.crm.edu.data.markAttendance.CheckAttendanceData
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 
@@ -104,42 +109,66 @@ fun MarkAttendanceScreen(
     }
 }
 
+@Composable
+fun PermissionMessageDialog(
+    showDialog: Boolean,
+    message: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            text = { Text(message) },
+            confirmButton = {
+                Button(onClick = onConfirm) {
+                    Text("Allow")
+                }
+            },
+            dismissButton = {
+                Button(onClick = onDismiss) {
+                    Text("Deny")
+                }
+            }
+        )
+    }
+}
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun PermissionLayout(
     locationPermissionState: PermissionState,
     onUpClick: () -> Unit = {},
 ) {
-    Scaffold(
-        topBar = {
-            AttendanceTopBar(onUpClick = onUpClick)
-        },
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Location permission is required to check in/out.",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 18.sp,
-                ),
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
-                Text(
-                    text = "Grant Permission"
-                )
+    Log.d("EduLogs", "Permission mark attendance")
+    val context = LocalContext.current
+    val onConfirm =
+        if ((locationPermissionState.status as PermissionStatus.Denied).shouldShowRationale) {
+            {
+                val intent =
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                startActivity(context, intent, null)
             }
+        } else {
+            { locationPermissionState.launchPermissionRequest() }
         }
-    }
 
+    val textToShow =
+        if ((locationPermissionState.status as PermissionStatus.Denied).shouldShowRationale) {
+            // If the user has denied the permission but the rationale can be shown,
+            // then gently explain why the app requires this permission
+            "Location permission is required to access this feature. Please enable it in your settings to proceed."
+        } else {
+            // If it's the first time the user lands on this feature, or the user
+            // doesn't want to be asked again for this permission, explain that the
+            // permission is required
+            "Location permission required for this feature to be available. " +
+                    "Please grant the permission"
+        }
+
+    PermissionMessageDialog(true, textToShow, onDismiss = onUpClick, onConfirm = onConfirm)
 }
 
 

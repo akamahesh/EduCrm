@@ -1,16 +1,16 @@
 <resources>
-    <string name="app_name">EduCrm</string>
-    <string name="dashboard_title">DashBoard</string>
+    <string name="app_name">Education Vibes</string>
+    <string name="dashboard_title">HRMS</string>
     <string name="attendance_title">Attendance</string>
     <string name="mark_attendance_title">Mark Attendance</string>
-    <string name="holiday_title">Holiday</string>
+    <string name="holiday_title">Holidays</string>
     <string name="my_attendance_title">My Attendance</string>
     <string name="staff_attendance_title">Attendance</string>
     <string name="leave_request_title">Leave Request</string>
     <string name="my_team_title">My Team</string>
-    <string name="leaves_title">Leaves</string>
+    <string name="leaves_title">Leave</string>
     <string name="img_content_login_header">Login Image</string>
-    <string name="team_leaves_title">Team Leaves</string>
-    <string name="my_leaves_title">My Leaves</string>
+    <string name="team_leaves_title">Team Leave</string>
+    <string name="my_leaves_title">My Leave</string>
     <string name="sample_title">Sample</string>
 </resources>

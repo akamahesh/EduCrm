@@ -41,6 +41,8 @@ data class LeaveEntity(
     @ColumnInfo(defaultValue = "")
     val reason: String,
     @ColumnInfo(defaultValue = "")
+    val message_: String,
+    @ColumnInfo(defaultValue = "")
     val dates: String,
     @ColumnInfo(defaultValue = "")
     val isHalfDay: String,
@@ -80,6 +82,7 @@ fun LeaveEntity.asExternalModel() = LeaveData(
     isAbsent = isAbsent,
     attendanceStatus = attendanceStatus,
     reason = reason,
+    message_ = message_,
     dates = dates,
     isHalfDay = isHalfDay,
     halfDayType = halfDayType,
