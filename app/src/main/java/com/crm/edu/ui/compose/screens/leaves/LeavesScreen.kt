@@ -141,18 +141,23 @@ private fun LeavesScreenInternal(
             }
 
             is UIState.Success -> {
-                SuccessLayout(paddingValues = paddingValues,
-                    leaveDataList = state.data.leaveDataList,
-                    currentMonth = selectedMonth,
-                    currentYear = selectedYear,
-                    onApprove = onApprove,
-                    onReject = onReject,
-                    onDelete = onDelete,
-                    isMyTeam = isMyTeam,
-                    onMonthYearChange = { newMonth, newYear ->
-                        onSelectMonth.invoke(newMonth)
-                        onSelectYear.invoke(newYear)
-                    })
+                if (state.data.leaveDataList.isEmpty()) {
+                    ErrorScreen("No Data found", false) { }
+                } else {
+                    SuccessLayout(paddingValues = paddingValues,
+                        leaveDataList = state.data.leaveDataList,
+                        currentMonth = selectedMonth,
+                        currentYear = selectedYear,
+                        onApprove = onApprove,
+                        onReject = onReject,
+                        onDelete = onDelete,
+                        isMyTeam = isMyTeam,
+                        onMonthYearChange = { newMonth, newYear ->
+                            onSelectMonth.invoke(newMonth)
+                            onSelectYear.invoke(newYear)
+                        })
+                }
+
             }
 
             is UIState.Error -> {
