@@ -120,13 +120,13 @@ private fun getLeaveOptions(): List<AttendanceOptionItem> {
 
     val optionItems = mutableListOf(
         AttendanceOptionItem(
-            name = "My Leaves",
+            name = "My Leave",
             route = Screen.Leaves.route.replace("{teamStatus}", "0"),
             drawableRes = R.drawable.ic_my_team_color,
             color = Color.Magenta
         ),
         AttendanceOptionItem(
-            name = "Team Leaves",
+            name = "Team Leave",
             route = Screen.Leaves.route.replace("{teamStatus}", "1"),
             drawableRes = R.drawable.ic_attendance_multi_color,
             color = Color.Blue
