@@ -82,4 +82,12 @@ class ConfigPreferences(context: Context) {
             }
             .first()
     }
+
+    suspend fun getBaseUrl(): String? {
+        return dataStore.data
+            .map { preferences ->
+                preferences[ConfigPreferencesKeys.BASE_URL]
+            }
+            .first()
+    }
 }

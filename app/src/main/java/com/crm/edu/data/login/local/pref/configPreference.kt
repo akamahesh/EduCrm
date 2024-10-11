@@ -79,6 +79,28 @@ class UserPreferences(context: Context) {
             }
             .first()
     }
+    suspend fun getDesignation(): String? {
+        return dataStore.data
+            .map { preferences ->
+                preferences[UserPreferencesKeys.DESIGNATION]
+            }
+            .first()
+    }
+
+    suspend fun getUserFullName(): String {
+        val firstName =  dataStore.data.map { preferences ->
+                preferences[UserPreferencesKeys.FIRST_NAME]
+            }.first()
+        val lastName = dataStore.data.map { preferences ->
+                preferences[UserPreferencesKeys.LAST_NAME]
+            }.first()
+        return when {
+            firstName != null && lastName != null -> "$firstName $lastName"
+            firstName != null -> firstName
+            lastName != null -> lastName
+            else -> "Anonymous"
+        }
+    }
 
     // Save User Data
     suspend fun saveUserData(userData: Map<String, String>) {
@@ -147,6 +169,12 @@ class UserPreferences(context: Context) {
                         value
                 }
             }
+        }
+    }
+
+    suspend fun clearAllUserData() {
+        dataStore.edit { preferences ->
+            preferences.clear()
         }
     }
 

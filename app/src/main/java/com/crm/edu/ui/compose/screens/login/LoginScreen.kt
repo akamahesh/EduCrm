@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.sp
 import androidx.core.util.PatternsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -62,6 +64,8 @@ fun LoginScreen(navController: NavHostController) {
     val loginViewModel = hiltViewModel<LoginViewModel>()
     val loginState by loginViewModel.loginState.collectAsState()
     val logoImageUrl by loginViewModel.updateLogoImage.collectAsState()
+
+    var isLoadingButton by remember { mutableStateOf(false) }
 
     var email by remember { mutableStateOf("kunal.kumar@educationvibes.in") }
     var password by remember { mutableStateOf("123456") }
@@ -169,24 +173,34 @@ fun LoginScreen(navController: NavHostController) {
                 emailError = !isValidEmail(email)
                 passwordError = password.isEmpty()
                 if (!emailError && !passwordError) {
+                    isLoadingButton = true
                     loginViewModel.login(email, password)
+                   // isLoadingButton = false
                 }
             },
+            enabled = !isLoadingButton,
             modifier = Modifier.fillMaxWidth().padding(start = 100.dp, end = 100.dp),
             colors = ButtonDefaults.buttonColors(containerColor =Color(0xFF007273), contentColor = Color.White)
         ) {
-            Text(text="Login",fontSize = 18.sp)
-
+            if (isLoadingButton) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(16.dp) // Adjust size as needed
+                )
+            } else {
+                Text("Login",fontSize = 18.sp)
+            }
 
         }
     }
 
     when (loginState) {
         is LoginUiState.Loading -> {
-            // Show loading indicator
+            isLoadingButton = true
         }
 
         is LoginUiState.Success -> {
+            isLoadingButton = false
             navController.navigate(Screen.Home.route) {
                 popUpTo(Screen.Login.route) {
                     inclusive = true
@@ -196,6 +210,7 @@ fun LoginScreen(navController: NavHostController) {
 
         is LoginUiState.Error -> {
             dialogMessage = (loginState as LoginUiState.Error).message
+            isLoadingButton = false
         }
 
         else -> {

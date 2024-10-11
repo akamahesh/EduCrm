@@ -3,9 +3,9 @@ package com.crm.edu.data.login.local
 import com.crm.edu.data.login.local.pref.UserPreferences
 import javax.inject.Inject
 
-class LocalDataSource @Inject constructor(private val userPreferences: UserPreferences) {
+class LocalDataSource @Inject constructor( val userPreferences: UserPreferences) {
 
-    suspend fun saveUserData(map: Map<String, String>) {
+    suspend fun  saveUserData(map: Map<String, String>) {
         userPreferences.saveUserData(map)
     }
 
@@ -15,4 +15,17 @@ class LocalDataSource @Inject constructor(private val userPreferences: UserPrefe
     suspend fun isUserLoggedIn(): Boolean {
         return userPreferences.isUserLoggedIn()
     }
+
+
+    suspend fun getDesignation(): String? {
+        return userPreferences.getDesignation()
+    }
+    suspend fun getUserFullName(): String {
+        return userPreferences.getUserFullName()
+    }
+
+    suspend fun resetUserData() {
+        userPreferences.clearAllUserData()
+    }
+
 }

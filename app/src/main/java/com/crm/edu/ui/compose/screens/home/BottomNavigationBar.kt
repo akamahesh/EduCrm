@@ -1,6 +1,7 @@
 package com.crm.edu.ui.compose.screens.home
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -28,9 +29,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.crm.edu.ui.compose.Screen
-import com.crm.edu.ui.compose.screens.CallManagerScreen
 import com.crm.edu.ui.compose.screens.attendance.AttendanceScreen
 import com.crm.edu.ui.compose.screens.calendar.CalendarScreen
+import com.crm.edu.ui.compose.screens.calllogs.CallLogsScreen
 import com.crm.edu.ui.compose.screens.calendar.tryouts.NewCalendarScreen
 import com.crm.edu.ui.compose.screens.dashboard.DashboardScreen
 import com.crm.edu.ui.compose.screens.holidayLeaves.HolidayCalendarScreen
@@ -46,7 +47,8 @@ import com.crm.edu.ui.compose.screens.myteam.MyTeamScreen
 fun BottomNavigationBar(
     navController: NavHostController,
     bottomNavigationItems: List<BottomNavigationItem>,
-    showCallManager: Boolean
+    showCallManager: Boolean,
+    moveToLogin: () -> Unit
 ) {
     //initialize the default selected item
 
@@ -105,7 +107,7 @@ fun BottomNavigationBar(
             startDestination = if (showCallManager) Screen.CallManager.route else Screen.Dashboard.route
         ) {
             composable(route = Screen.CallManager.route) {
-                CallManagerScreen(navController)
+                CallLogsScreen(navController,moveToLogin) { (context as? Activity)?.finishAffinity()}
             }
 
             composable(route = Screen.Dashboard.route) {
