@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,15 +46,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.crm.edu.R
+import com.crm.edu.domain.calllogs.NameDesignation
 import com.crm.edu.ui.compose.Screen
+import com.crm.edu.ui.compose.screens.calllogs.CallLogsUIState
+import timber.log.Timber
 
 @Composable
 fun DashboardScreen(
@@ -59,27 +68,46 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
     onOptionClick: (String) -> Unit = {},
     onUpClick: () -> Unit = {},
+    moveToLogin: () -> Unit,
 ) {
+    val userNameDesignationState by viewModel.userNameDesignationState.collectAsState()
+    val uiStateData by viewModel.callLogsUiState.collectAsState()
+
     val dashboardItems = getAllDashboardOptions()
 
     DashboardScreenInternal(
         dashboardItems = dashboardItems,
+        nameDesignation = userNameDesignationState,
         onOptionClick = onOptionClick,
         onUpClick = onUpClick,
-        logout = { viewModel.logout() }
+        logout = { viewModel.markLogout() }
     )
+
+    when (uiStateData) {
+        is CallLogsUIState.moveToLogin -> {
+            //navController.navigateUp()
+            moveToLogin()
+        }
+
+        null -> Timber.tag("CallLogsScreen").d("CallLogsUIState : null")
+    }
 }
 
 @Composable
 private fun DashboardScreenInternal(
     dashboardItems: List<DashboardItem>,
+    nameDesignation: NameDesignation? = null,
     onOptionClick: (String) -> Unit = {},
     onUpClick: () -> Unit = {},
     logout: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
-            DashBoardTopBar(onUpClick = onUpClick, logOut = logout)
+            DashBoardTopBar(
+                nameDesignation = nameDesignation,
+                onUpClick = onUpClick,
+                logOut = logout
+            )
         },
     ) { padding ->
         Box(
@@ -108,11 +136,13 @@ private fun DashboardScreenInternal(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DashBoardTopBar(
+    nameDesignation: NameDesignation?,
     onUpClick: () -> Unit,
     logOut: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    var isPopupVisible by remember { mutableStateOf(false) }
 
     TopAppBar(
         title = {
@@ -120,7 +150,7 @@ private fun DashBoardTopBar(
         },
         actions = {
             // Menu Icon
-            IconButton(onClick = { showMenu = !showMenu }) {
+            IconButton(onClick = { isPopupVisible = !isPopupVisible }) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.baseline_more_vert_24), // Your menu icon
                     contentDescription = "Menu"
@@ -134,6 +164,49 @@ private fun DashBoardTopBar(
         LogoutAlert(showDialog = showMenu,
             logOut = logOut,
             onDismiss = { showMenu = false })
+    }
+
+    if (isPopupVisible) {
+        Popup(
+            alignment = Alignment.TopEnd,
+            onDismissRequest = { isPopupVisible = false }
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(56.dp, 46.dp, 26.dp, 26.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = nameDesignation?.name.orEmpty(),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = nameDesignation?.designation ?: "",
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+
+                    Button(
+                        onClick = {
+                            showMenu = true
+                        },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text(text = "Logout")
+                    }
+                }
+            }
+        }
     }
 }
 
