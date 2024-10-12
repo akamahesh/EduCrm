@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.crm.edu.core.EResult
 import com.crm.edu.data.markAttendance.CheckAttendanceData
 import com.crm.edu.data.markAttendance.MarkAttendanceRepository
-import com.crm.edu.utils.getLastKnownLocation
+import com.crm.edu.utils.getCurrentLocation
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,7 +47,7 @@ class MarkAttendanceViewModel @Inject constructor(
 
     @SuppressLint("MissingPermission")
     fun fetchLocation() {
-        getLastKnownLocation(fusedLocationClient){
+        getCurrentLocation(fusedLocationClient) {
             //location
             setLocationData(it)
         }

@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.crm.edu.BuildConfig
 import com.crm.edu.R
 import com.crm.edu.core.EResult
 import com.crm.edu.data.markAttendance.CheckAttendanceData
@@ -193,7 +194,7 @@ private fun MarkAttendanceScreenInternal(
             }
 
             is EResult.Success -> {
-                SuccessLayout(innerPadding, checkAttendanceState.data) {
+                SuccessLayout(innerPadding, location, checkAttendanceState.data) {
                     onCheckInCheckout(it)
                 }
             }
@@ -250,6 +251,7 @@ private fun ErrorLayout(message: String, onRetry: () -> Unit) {
 @Composable
 private fun SuccessLayout(
     innerPadding: PaddingValues,
+    location: Location?,
     data: CheckAttendanceData,
     onCheckInCheckOut: (selectedId: String) -> Unit
 ) {
@@ -276,6 +278,15 @@ private fun SuccessLayout(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(start = 16.dp)
+            )
+        }
+
+        if (BuildConfig.DEBUG) {
+            Text(
+                text = "Location lat: ${location?.latitude} long: ${location?.longitude}",
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier
+                    .padding(start = 4.dp)
             )
         }
 
